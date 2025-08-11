@@ -24,20 +24,21 @@ button {
 }
 
 button:hover {
-  background-color: #9FA1A1;
-  color: #FFFFFF;
+    background-color: #9FA1A1;
+    color: #FFFFFF;
 }
 
 #status {
     width: 140px;
     margin-top: 10px;
+    margin-bottom: 10px;
     font-size: 14px;
     color: #000;
 }
 
 @media (prefers-color-scheme: dark) {
     body {
-        background-color: #323534;
+        background-color: #353736;
     }
     button {
         background-color: #48494A;
@@ -45,7 +46,7 @@ button:hover {
     }
     button:hover {
         background-color: #EBEDEC;
-        color: #000;
+        color: #111;
     }
     #status {
         color: #eee;

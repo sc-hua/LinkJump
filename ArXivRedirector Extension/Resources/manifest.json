@@ -20,7 +20,7 @@
     },
 
     "content_scripts": [{
-        "js": [ "content.js" ],
+        "js": [ "utils.js", "content.js" ],
         "matches": [
             "*://arxiv.org/*",
             "*://github.com/*",

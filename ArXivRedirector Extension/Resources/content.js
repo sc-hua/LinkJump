@@ -1,77 +1,59 @@
 var url = window.location.href;
 
-const redirectors_map = {
-    arxiv: [
-        { name: "HJFY", url: id => `https://hjfy.top/arxiv/${id}` },
-        { name: "alphaXiv", url: id => `https://www.alphaxiv.org/abs/${id}` },
-        { name: "Cool Papers", url: id => `https://papers.cool/arxiv/${id}` },
-        { name: "Hugging Face", url: id => `https://huggingface.co/papers/${id}` }
-    ],
-    github: [
-        { name: "DeepWiki", url: repo => `https://deepwiki.com/${repo}` },
-        { name: "Z-Read", url: repo => `https://zread.ai/${repo}` }
-    ],
-    scholar: [
-        { 
-            name: "HJFY", url: id => `https://hjfy.top/arxiv/${id}`, 
-            logo: "https://raw.githubusercontent.com/sc-hua/logos/refs/heads/main/hjfy.svg",
-            hover: "Translate into a PDF in zh"
-        }, { 
-            name: "alphaXiv", url: id => `https://www.alphaxiv.org/abs/${id}`, 
-            logo: "https://raw.githubusercontent.com/sc-hua/logos/refs/heads/main/alphaxiv.svg",
-            hover: "View AlphaXiv page for this paper"
-        }, { 
-            name: "Cool Papers", url: id => `https://papers.cool/arxiv/${id}`, 
-            logo: "https://raw.githubusercontent.com/sc-hua/logos/refs/heads/main/coolpapers.png",
-            hover: "View Cool Papers page for this paper"
-        }, { 
-            name: "Hugging Face", url: id => `https://huggingface.co/papers/${id}`, 
-            logo: "https://raw.githubusercontent.com/sc-hua/logos/refs/heads/main/huggingface.svg",
-            hover: "View Hugging Face page for this paper"
-        }
-    ]
-};
+// modify page of arxiv abs
+// for a exact paper, e.g. "https://arxiv.org/abs/1706.03762"
+if (url.startsWith('https://arxiv.org/abs/')) {
+    const ul = document.querySelector('div.full-text ul');
+    const redirectors = redirectors_map.arxiv.filter(site => 
+        site.prefix !== "https://arxiv.org/abs/" &&
+        site.prefix !== "https://arxiv.org/pdf/"
+    );
 
-// handle arxiv
-if (url.startsWith('https://arxiv.org/')) {
-    const redirectors = redirectors_map.arxiv;
-    
-    // for a exact paper, e.g. "https://arxiv.org/abs/1706.03762"
-    if (url.startsWith('https://arxiv.org/abs/')) {
-        const paperId = url.match(/[0-9]{4}\.[0-9]{4,5}/)[0];
-        const ul = document.querySelector('div.full-text ul');
-        
+    if (ul && !ul.querySelector('.arxiv-redirectors')) { // proceed only if conditions are met
+        const paperId = extractPaperId(url);
+        console.log(`paperId: ${paperId}`);
         redirectors.forEach(site => {
             const li = document.createElement('li');
-            li.innerHTML = `<a href="${site.url(paperId)}">${site.name}</a>`;
+            li.innerHTML = `<a class="arxiv-redirectors" href="${site.url(paperId)}">${site.name}</a>`;
             ul.appendChild(li);
-        });
-        
-    // for a list of papers, e.g. "https://arxiv.org/list/cs.CV/recent"
-    } else if (url.startsWith('https://arxiv.org/list/')) {
-        const dts = document.querySelectorAll('#articles dt');
-        
-        dts.forEach(dt => {
-            const paperId = dt.querySelectorAll('a')[1].id;
-            redirectors.forEach(site => {
-                dt.innerHTML = dt.innerHTML.trim().slice(0, -1) +
-                  `, <a href="${site.url(paperId)}"> ${site.name.toLowerCase()} </a>]`;
-            });
         });
     }
 }
 
+// modify redirect list of each item in page
+// for a list of papers, e.g. "https://arxiv.org/list/cs.CV/recent"
+if (url.startsWith('https://arxiv.org/list/')) {
+    const dts = document.querySelectorAll('#articles dt');
+    const redirectors = redirectors_map.arxiv.filter(site => 
+        site.prefix !== "https://arxiv.org/abs/" &&
+        site.prefix !== "https://arxiv.org/pdf/"
+    );
+
+    dts.forEach(dt => {
+        if (dt && !dt.querySelector('.arxiv-redirectors')) { // proceed only if conditions are met
+            const paperId = dt.querySelectorAll('a')[1].id;
+            redirectors.forEach(site => {
+                dt.innerHTML = dt.innerHTML.trim().slice(0, -1) +
+                    `, <a class="arxiv-redirectors" href="${site.url(paperId)}"> ${site.name.toLowerCase()} </a>]`;
+            });
+        }
+    });
+}
+
+
 // handle github
 if (url.startsWith('https://github.com/')) {
-    const redirectors = redirectors_map.github;
-    const match = url.match(/^https:\/\/github\.com\/([^\/]+)\/([^\/?#]+)/);
-    const repo = `${match[1]}/${match[2]}`;
-
-    // 找到顶部导航栏（"Code / Issues / …"）
+    // find the top navigation bar ("Code / Issues / …")
     const nav = document.querySelector('nav.UnderlineNav-body') ||
                 document.querySelector('ul.UnderlineNav-body');
-
+    // proceed only if nav exists and redirectors haven't been added
     if (nav && !nav.querySelector('.github-redirectors')) {
+        // filter out GitHub item itself
+        const redirectors = redirectors_map.github.filter(site => 
+            site.prefix !== "https://github.com/"
+        );
+        const repo = extractGithubRepo(url);
+        console.log(`repo: ${repo}`);
         redirectors.forEach(site => {
             const li = document.createElement('li');
             li.className = 'd-inline-flex github-redirectors';
@@ -85,8 +67,11 @@ if (url.startsWith('https://github.com/')) {
 
 // handle scholar-inbox
 if (url.includes('https://www.scholar-inbox.com')) {
-    const redirectors = redirectors_map.scholar;
-
+    const redirectors = redirectors_map.arxiv.filter(site => 
+        site.prefix !== "https://arxiv.org/abs/" &&
+        site.prefix !== "https://arxiv.org/pdf/"
+    );
+    
     // 从容器中提取 arXiv ID：优先从链接 href，其次从容器文本
     function extractArxivIdFromContainer(container) {
         const link = container.querySelector('a[href*="arxiv.org/abs/"], a[href*="arxiv.org/pdf/"]');
