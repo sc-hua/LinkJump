@@ -1,6 +1,6 @@
 {
     "manifest_version": 3,
-    "name": "Arxiv Redirector",
+    "name": "Page Redirector",
     "version": "0.1",
     "description" : "Redirect arXiv pages to alternative domains",
     "icons": {"128": "icon.png"},
