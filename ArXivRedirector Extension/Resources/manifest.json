@@ -1,6 +1,5 @@
 {
     "manifest_version": 3,
-    "default_locale": "en",
 
     "name": "Page Redirector",
     "description": "Redirect arXiv pages to alternative domains",
