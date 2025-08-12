@@ -1,8 +1,8 @@
 {
     "manifest_version": 3,
     "name": "Page Redirector",
-    "version": "0.1",
-    "description" : "Redirect arXiv pages to alternative domains",
+    "version": "1.0",
+    "description": "Redirect arXiv pages to alternative domains",
     "icons": {"128": "icon.png"},
     "action": {
         "default_icon": {
@@ -11,19 +11,17 @@
         "default_popup": "popup.html"
     },
     "permissions": [
-        "contextMenus",
-        "notifications",
-        "tabs", "activeTab"
+        "tabs",
+        "activeTab"
     ],
     "content_scripts": [
         {
             "matches": [
                 "*://arxiv.org/*",
-                "*://papers.cool/*",
-                "*://www.alphaxiv.org/*",
-                "*://hjfy.top/*"
+                "*://github.com/*",
+                "*://www.scholar-inbox.com/*"
             ],
-            "js": ["content.js"]
+            "js": ["utils.js", "content.js"]
         }
     ]
 }

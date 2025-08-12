@@ -8,6 +8,7 @@ body {
     flex-direction: column;
     align-items: center;
     text-align: center;
+    background-color: #EAECEA;
 }
 
 button {
@@ -18,31 +19,37 @@ button {
     border-radius: 8px;
     border: none;
     cursor: pointer;
-    background-color: #d0d0d0;
+    background-color: #E0E1E2;
     color: #000;
 }
 
 button:hover {
-  background-color: #AAABAB;
+    background-color: #9FA1A1;
+    color: #FFFFFF;
 }
 
 #status {
     width: 140px;
     margin-top: 10px;
+    margin-bottom: 10px;
     font-size: 14px;
     color: #000;
 }
 
 @media (prefers-color-scheme: dark) {
-  button {
-    background-color: #333;
-    color: #eee;
-  }
-  button:hover {
-    background-color: #444;
-  }
-  #status {
-    color: #eee;
-  }
+    body {
+        background-color: #353736;
+    }
+    button {
+        background-color: #48494A;
+        color: #eee;
+    }
+    button:hover {
+        background-color: #EBEDEC;
+        color: #111;
+    }
+    #status {
+        color: #eee;
+    }
 }
 

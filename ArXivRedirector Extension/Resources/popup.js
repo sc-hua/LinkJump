@@ -8,7 +8,7 @@ function createButtons(redirectors, identifier, tabId) {
         btn.innerText = `${site.name}`;
         btn.onclick = (e) => {
             const targetUrl = site.url(identifier);
-            if (e.metaKey) {  // ⌘, command key, create another new tab
+            if (e.metaKey || e.ctrlKey) {  // ⌘ (Mac) or Ctrl (Windows/Linux), create another new tab
                 chrome.tabs.create({ url: targetUrl });
             } else {  // simple click, update current tab
                 chrome.tabs.update(tabId, { url: targetUrl });
