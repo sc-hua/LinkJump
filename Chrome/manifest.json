@@ -5,10 +5,10 @@
     "description": "Redirect arXiv pages to alternative domains",
     "icons": {"128": "icon.png"},
     "action": {
+        "default_popup": "popup.html",
         "default_icon": {
             "128": "icon.png"
-        },
-        "default_popup": "popup.html"
+        }
     },
     "permissions": [
         "tabs",

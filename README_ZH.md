@@ -5,7 +5,7 @@
 ## 支持的浏览器
 - <img src="./logos/chrome.svg" width="20" height="20" style="vertical-align:top;"/> Chrome: 主要代码请查看[这里](./Chrome/README.md)
 
-- <img src="./logos/firefox.svg" alt="Firefox" width="20" height="20" style="vertical-align:top;"/> Firefox: 主要代码请查看[这里](./Firefox/README.md)
+- <img src="./logos/firefox.svg" alt="Firefox" width="20" height="20" style="vertical-align:top;"/> Firefox: 待开发
 
 - <img src="./logos/microsoft-edge-96.png" alt="Edge" width="20" height="20" style="vertical-align:top;"/> Edge: 待开发
 

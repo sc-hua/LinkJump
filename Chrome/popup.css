@@ -9,6 +9,8 @@ body {
     align-items: center;
     text-align: center;
     background-color: #EAECEA;
+    width: 150px;
+    /* HSC: Check if height should be set in safari code */
 }
 
 button {

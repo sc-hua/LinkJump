@@ -102,24 +102,29 @@ if (url.includes('https://www.scholar-inbox.com')) {
         if (site.hover) {
             const showTooltip = () => {
                 if (tooltip) return;
+                
+                const rect = btn.getBoundingClientRect();
                 tooltip = document.createElement('div');
                 tooltip.textContent = site.hover;
+                tooltip.className = 'arxiv-redirector-tooltip';
+                
                 Object.assign(tooltip.style, {
-                    position: 'absolute',
-                    bottom: '100%',
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    position: 'fixed',
+                    left: `${rect.left + rect.width / 2}px`,
+                    top: `${rect.top - 8}px`,
+                    transform: 'translate(-50%, -100%)',
+                    backgroundColor: 'rgba(0, 0, 0, 0.9)',
                     color: 'white',
-                    padding: '4px 8px',
-                    borderRadius: '4px',
+                    padding: '6px 10px',
+                    borderRadius: '6px',
                     fontSize: '12px',
                     whiteSpace: 'nowrap',
-                    zIndex: '1000',
-                    marginBottom: '4px',
-                    pointerEvents: 'none'
+                    zIndex: '999999',
+                    pointerEvents: 'none',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)'
                 });
-                btn.appendChild(tooltip);
+                
+                document.body.appendChild(tooltip);
             };
             
             const hideTooltip = () => {
@@ -180,19 +185,14 @@ if (url.includes('https://www.scholar-inbox.com')) {
         return btn;
     }
 
-    // 生成一个与现有操作项同级的重定向条目
-    function createRedirectItem(site, paperId) {
+    // 生成一个位于工具栏中的按钮，额外添加了 arxiv-redirector-btn 类
+    function createToolbarButton(site, paperId, button_class) {
         const item = document.createElement('div');
-        item.className = 'MuiBox-root css-1elqj97 arxiv-redirector-item';
-        
-        const btn = createMuiButton(site, paperId);
+        item.className = button_class;
+
+        const btn = createMuiButton(site, paperId, 'arxiv-redirector-btn');
         item.appendChild(btn);
         return item;
-    }
-
-    // 生成一个位于工具栏中的 IconButton 样式按钮
-    function createToolbarButton(site, paperId) {
-        return createMuiButton(site, paperId, 'arxiv-redirector-btn');
     }
 
     // 通用的插入逻辑
@@ -208,29 +208,10 @@ if (url.includes('https://www.scholar-inbox.com')) {
         }
     }
 
-    function processContainer(container) {
-        if (container.dataset.redirectsInjected === '1') return;
-        const paperId = extractArxivIdFromContainer(container);
-        if (!paperId) return;
-
-        // 清理旧版插入的块
-        const legacy = container.querySelectorAll('.arxiv-redirectors');
-        legacy.forEach(node => node.remove());
-
-        // 找到"锚点"项：包含 arxiv 链接的那个 .MuiBox-root.css-1elqj97
-        const anchorLink = container.querySelector('.MuiBox-root.css-1elqj97 a[href*="arxiv.org/abs/"], .MuiBox-root.css-1elqj97 a[href*="arxiv.org/pdf/"]');
-        const insertAfterNode = anchorLink ? anchorLink.closest('.MuiBox-root.css-1elqj97') : container.lastElementChild;
-
-        // 创建并插入重定向元素
-        const redirectItems = redirectors.map(site => createRedirectItem(site, paperId));
-        insertRedirectElements(container, redirectItems, insertAfterNode);
-        
-        container.dataset.redirectsInjected = '1';
-    }
-
-    // 处理工具栏布局（.css-3u7l7h）
-    function processToolbars() {
-        const toolbars = document.querySelectorAll('.MuiBox-root.css-3u7l7h');
+    // 处理工具栏
+    function processToolbars(container_class, button_class) {
+        button_class = ''
+        const toolbars = document.querySelectorAll(container_class);
         toolbars.forEach(toolbar => {
             if (toolbar.dataset.redirectsInjected === '1') return;
 
@@ -249,27 +230,30 @@ if (url.includes('https://www.scholar-inbox.com')) {
             const insertAfterNode = arxivButton ? arxivButton.closest('button') : toolbar.lastElementChild;
 
             // 创建并插入重定向按钮
-            const redirectButtons = redirectors.map(site => createToolbarButton(site, paperId));
+            const redirectButtons = redirectors.map(
+                site => createToolbarButton(site, paperId, button_class)
+            );
             insertRedirectElements(toolbar, redirectButtons, insertAfterNode);
             
             toolbar.dataset.redirectsInjected = '1';
         });
     }
 
-    function processAllContainers() {
-        const containers = document.querySelectorAll('.MuiBox-root.css-16cfwlk');
-        containers.forEach(processContainer);
-    }
+    // 第一次加载页面时进行初次处理
 
-    // 初次处理
-    processAllContainers();
-    processToolbars();
+    // 常见情况，一般是宽度大于二分之一屏幕的情况下，这些按钮会在论文标题的左侧
+    // 窗口比较大的时候按钮所在的控件 Container
+    processToolbars('.css-3u7l7h', 'MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium');
+
+    // 一般是宽度小于二分之一屏幕的情况下，这些按钮会在论文标题的上面
+    // 窗口比较小的时候按钮所在的控件 Container
+    processToolbars('.css-16cfwlk', 'MuiBox-root');
 
     // 监听动态内容（React/MUI 列表可能异步加载或分页）
     const pageObserver = new MutationObserver(() => {
         requestAnimationFrame(() => {
-            processAllContainers();
-            processToolbars();
+            processToolbars('.css-3u7l7h', 'MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium');
+            processToolbars('.css-16cfwlk', 'MuiBox-root');
         });
     });
     pageObserver.observe(document.body, { childList: true, subtree: true });

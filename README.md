@@ -6,7 +6,7 @@ English | [中文](./README_ZH.md)
 ## Supported Browsers
 - <img src="./logos/chrome.svg" width="20" height="20" style="vertical-align:top;"/> Chrome: See [here](./Chrome/README.md) for the main code.
 
-- <img src="./logos/firefox.svg" alt="Firefox" width="20" height="20" style="vertical-align:top;"/> Firefox: See [here](./Firefox/README.md) for the main code.
+- <img src="./logos/firefox.svg" alt="Firefox" width="20" height="20" style="vertical-align:top;"/> Firefox: To be done.
 
 - <img src="./logos/microsoft-edge-96.png" alt="Edge" width="20" height="20" style="vertical-align:top;"/> Edge: To be done.
 
