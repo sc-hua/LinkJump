@@ -19,7 +19,8 @@
             "matches": [
                 "*://arxiv.org/*",
                 "*://github.com/*",
-                "*://www.scholar-inbox.com/*"
+                "*://www.scholar-inbox.com/*",
+                "*://huggingface.co/*"
             ],
             "js": ["utils.js", "content.js"]
         }

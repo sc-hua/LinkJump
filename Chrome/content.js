@@ -1,6 +1,6 @@
 var url = window.location.href;
 
-// modify page of arxiv abs
+// modify arxiv abs page
 // for a exact paper, e.g. "https://arxiv.org/abs/1706.03762"
 if (url.startsWith('https://arxiv.org/abs/')) {
     const ul = document.querySelector('div.full-text ul');
@@ -20,7 +20,7 @@ if (url.startsWith('https://arxiv.org/abs/')) {
     }
 }
 
-// modify redirect list of each item in page
+// modify arxiv list page for each arxiv item
 // for a list of papers, e.g. "https://arxiv.org/list/cs.CV/recent"
 if (url.startsWith('https://arxiv.org/list/')) {
     const dts = document.querySelectorAll('#articles dt');
@@ -41,7 +41,7 @@ if (url.startsWith('https://arxiv.org/list/')) {
 }
 
 
-// handle github
+// modify github page, nav-bar button
 if (url.startsWith('https://github.com/')) {
     // find the top navigation bar ("Code / Issues / …")
     const nav = document.querySelector('nav.UnderlineNav-body') ||
@@ -65,7 +65,7 @@ if (url.startsWith('https://github.com/')) {
     }
 }
 
-// handle scholar-inbox
+// handle scholar-inbox, modify each item, add redirect buttons
 if (url.includes('https://www.scholar-inbox.com')) {
     const redirectors = redirectors_map.arxiv.filter(site => 
         site.prefix !== "https://arxiv.org/abs/" &&
