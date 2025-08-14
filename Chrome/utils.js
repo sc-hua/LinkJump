@@ -70,12 +70,12 @@ const redirectors_map = {
 
 const mirrors_map = {
   // main mirrors
-  "https://huggingface.co/": {
-    mirror: "https://hf-mirror.com/",
+  "https://huggingface.co": {
+    mirror: "https://hf-mirror.com",
     hover: "To hf-mirror.com"
   },
-  "https://github.com/": {
-    mirror: "https://kkgithub.com/",
+  "https://github.com": {
+    mirror: "https://kkgithub.com",
     hover: "To kkgithub.com"
   },
 }

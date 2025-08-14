@@ -9,12 +9,12 @@ if (url.startsWith('https://arxiv.org/abs/')) {
         site.prefix !== "https://arxiv.org/pdf/"
     );
 
-    if (ul && !ul.querySelector('.arxiv-redirectors')) { // proceed only if conditions are met
+    if (ul && !ul.querySelector('.link-jumps')) { // proceed only if conditions are met
         const paperId = extractPaperId(url);
         console.log(`paperId: ${paperId}`);
         redirectors.forEach(site => {
             const li = document.createElement('li');
-            li.innerHTML = `<a class="arxiv-redirectors" href="${site.url(paperId)}">${site.name}</a>`;
+            li.innerHTML = `<a class="link-jumps" href="${site.url(paperId)}">${site.name}</a>`;
             ul.appendChild(li);
         });
     }
@@ -30,11 +30,11 @@ if (url.startsWith('https://arxiv.org/list/')) {
     );
 
     dts.forEach(dt => {
-        if (dt && !dt.querySelector('.arxiv-redirectors')) { // proceed only if conditions are met
+        if (dt && !dt.querySelector('.link-jumps')) { // proceed only if conditions are met
             const paperId = dt.querySelectorAll('a')[1].id;
             redirectors.forEach(site => {
                 dt.innerHTML = dt.innerHTML.trim().slice(0, -1) +
-                    `, <a class="arxiv-redirectors" href="${site.url(paperId)}"> ${site.name.toLowerCase()} </a>]`;
+                    `, <a class="link-jumps" href="${site.url(paperId)}"> ${site.name.toLowerCase()} </a>]`;
             });
         }
     });
@@ -72,16 +72,15 @@ if (url.includes('https://www.scholar-inbox.com')) {
         site.prefix !== "https://arxiv.org/pdf/"
     );
     
-    // 从容器中提取 arXiv ID：优先从链接 href，其次从容器文本
+    // Extract arXiv ID from container by searching for arXiv links
     function extractArxivIdFromContainer(container) {
-        const link = container.querySelector('a[href*="arxiv.org/abs/"], a[href*="arxiv.org/pdf/"]');
-        if (link) {
-            const m = link.href.match(/arxiv\.org\/(?:abs|pdf)\/([0-9]{4}\.[0-9]{4,5}(?:v\d+)?)/i);
-            if (m) return m[1];
+        // Look for arXiv links in the container
+        const arxivLink = container.querySelector('a[href*="arxiv.org/abs/"], a[href*="arxiv.org/pdf/"]');
+        if (arxivLink) {
+            const match = arxivLink.href.match(/arxiv\.org\/(?:abs|pdf)\/([0-9]{4}\.[0-9]{4,5}(?:v\d+)?)/);
+            if (match) return match[1];
         }
-        const text = container.innerText || '';
-        const t = text.match(/arXiv:([0-9]{4}\.[0-9]{4,5}(v\d+)?)/i);
-        return t ? t[1] : null;
+        return null;
     }
 
     // 创建通用的 MUI 按钮元素
@@ -106,7 +105,7 @@ if (url.includes('https://www.scholar-inbox.com')) {
                 const rect = btn.getBoundingClientRect();
                 tooltip = document.createElement('div');
                 tooltip.textContent = site.hover;
-                tooltip.className = 'arxiv-redirector-tooltip';
+                tooltip.className = 'link-jump-tooltip';
                 
                 Object.assign(tooltip.style, {
                     position: 'fixed',
@@ -185,76 +184,63 @@ if (url.includes('https://www.scholar-inbox.com')) {
         return btn;
     }
 
-    // 生成一个位于工具栏中的按钮，额外添加了 arxiv-redirector-btn 类
-    function createToolbarButton(site, paperId, button_class) {
-        const item = document.createElement('div');
-        item.className = button_class;
+    // Create button for css-16cfwlk container (MuiBox-root wrapper)
+    function createMuiBoxButton(site, paperId) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'MuiBox-root css-1elqj97 link-jump-div';
 
-        const btn = createMuiButton(site, paperId, 'arxiv-redirector-btn');
-        item.appendChild(btn);
-        return item;
+        const btn = createMuiButton(site, paperId, 'link-jump-button');
+        wrapper.appendChild(btn);
+        return wrapper;
     }
 
-    // 通用的插入逻辑
-    function insertRedirectElements(container, elements, insertAfterNode) {
-        for (const element of elements) {
-            if (insertAfterNode && insertAfterNode.parentNode) {
-                insertAfterNode.insertAdjacentElement('afterend', element);
-                insertAfterNode = element;
-            } else {
-                container.appendChild(element);
-                insertAfterNode = element;
-            }
-        }
+    // Create button for css-3u7l7h container (direct button)
+    function createDirectButton(site, paperId) {
+        return createMuiButton(site, paperId, 'link-jump-button');
     }
 
-    // 处理工具栏
-    function processToolbars(container_class, button_class) {
-        button_class = ''
-        const toolbars = document.querySelectorAll(container_class);
-        toolbars.forEach(toolbar => {
-            if (toolbar.dataset.redirectsInjected === '1') return;
-
-            // 自底向上最多寻找 5 层，找到包含 arXiv 线索的最近容器
-            let paperId = null;
-            let node = toolbar;
-            for (let i = 0; i < 5 && node; i++) {
-                paperId = extractArxivIdFromContainer(node);
-                if (paperId) break;
-                node = node.parentElement;
-            }
-            if (!paperId) return;
-
-            // 找到 arXiv 按钮作为插入点
-            const arxivButton = toolbar.querySelector('a[href*="arxiv.org/abs/"], a[href*="arxiv.org/pdf/"]');
-            const insertAfterNode = arxivButton ? arxivButton.closest('button') : toolbar.lastElementChild;
-
-            // 创建并插入重定向按钮
-            const redirectButtons = redirectors.map(
-                site => createToolbarButton(site, paperId, button_class)
-            );
-            insertRedirectElements(toolbar, redirectButtons, insertAfterNode);
+    function processPaperItems() {
+        // infinite-scroll-component arxiv item list
+        const paperDivs = document.querySelectorAll('div.css-lam9o6[id^="paper"]');
+        
+        paperDivs.forEach(paperDiv => {
+            // Skip if redirects have already been injected
+            if (paperDiv.dataset.arxivRedirectsInjected === '1') return;
             
-            toolbar.dataset.redirectsInjected = '1';
+            // Extract arXiv ID from links within the paper div
+            const paperId = extractArxivIdFromContainer(paperDiv);
+            if (!paperId) return;
+            
+            // Handle css-16cfwlk container (MuiBox-root buttons)
+            const smallContainer = paperDiv.querySelector('.css-16cfwlk');
+            if (smallContainer) {
+                redirectors.forEach(site => {
+                    const btn = createMuiBoxButton(site, paperId);
+                    smallContainer.appendChild(btn);
+                });
+            }
+            
+            // Handle css-3u7l7h container (direct buttons)
+            const largeContainer = paperDiv.querySelector('.css-3u7l7h');
+            if (largeContainer) {
+                redirectors.forEach(site => {
+                    const btn = createDirectButton(site, paperId);
+                    largeContainer.appendChild(btn);
+                });
+            }
+            
+            paperDiv.dataset.arxivRedirectsInjected = '1';
         });
     }
 
-    // 第一次加载页面时进行初次处理
-
-    // 常见情况，一般是宽度大于二分之一屏幕的情况下，这些按钮会在论文标题的左侧
-    // 窗口比较大的时候按钮所在的控件 Container
-    processToolbars('.css-3u7l7h', 'MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium');
-
-    // 一般是宽度小于二分之一屏幕的情况下，这些按钮会在论文标题的上面
-    // 窗口比较小的时候按钮所在的控件 Container
-    processToolbars('.css-16cfwlk', 'MuiBox-root');
-
-    // 监听动态内容（React/MUI 列表可能异步加载或分页）
-    const pageObserver = new MutationObserver(() => {
+    // Initial processing and setup observer for dynamic content
+    processPaperItems();
+    
+    // Monitor dynamic content changes
+    const observer = new MutationObserver(() => {
         requestAnimationFrame(() => {
-            processToolbars('.css-3u7l7h', 'MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium');
-            processToolbars('.css-16cfwlk', 'MuiBox-root');
+            processPaperItems();
         });
     });
-    pageObserver.observe(document.body, { childList: true, subtree: true });
+    observer.observe(document.body, { childList: true, subtree: true });
 }
