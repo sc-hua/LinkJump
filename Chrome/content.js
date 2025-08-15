@@ -1,15 +1,17 @@
 var url = window.location.href;
 
-// modify arxiv abs page, for an exact paper, e.g. "https://arxiv.org/abs/1706.03762"
+// modify arxiv abs page, for an exact paper
+// e.g. "https://arxiv.org/abs/1706.03762"
 if (url.startsWith('https://arxiv.org/abs/')) {
+    const paperId = extractPaperId(url);
     const ul = document.querySelector('div.full-text ul');
     const redirectors = redirectors_map.arxiv.filter(site => 
         site.prefix !== "https://arxiv.org/abs/" &&
         site.prefix !== "https://arxiv.org/pdf/"
     );
 
-    if (ul && !ul.querySelector('.link-jumps')) { // proceed only if conditions are met
-        const paperId = extractPaperId(url);
+    // proceed only if conditions are met
+    if (paperId && ul && !ul.querySelector('.link-jumps')) {
         console.log(`paperId: ${paperId}`);
         redirectors.forEach(site => {
             const li = document.createElement('li');
@@ -23,7 +25,8 @@ if (url.startsWith('https://arxiv.org/abs/')) {
     }
 }
 
-// modify arxiv list page for each arxiv item, for a list of papers, e.g. "https://arxiv.org/list/cs.CV/recent"
+// modify arxiv list page for each arxiv item, for a list of papers
+// e.g. "https://arxiv.org/list/cs.CV/recent"
 if (url.startsWith('https://arxiv.org/list/')) {
     const dts = document.querySelectorAll('#articles dt');
     const redirectors = redirectors_map.arxiv.filter(site => 
@@ -32,8 +35,10 @@ if (url.startsWith('https://arxiv.org/list/')) {
     );
 
     dts.forEach(dt => {
-        if (dt && !dt.querySelector('.link-jumps')) { // proceed only if conditions are met
-            const paperId = dt.querySelectorAll('a')[1].id;
+        const paperId = dt.querySelectorAll('a')[1].id;
+
+        // proceed only if conditions are met
+        if (paperId && dt && !dt.querySelector('.link-jumps')) {
             redirectors.forEach(site => {
                 const a = document.createElement('a');
                 a.className = 'link-jumps';
@@ -52,16 +57,18 @@ if (url.startsWith('https://arxiv.org/list/')) {
 
 // modify github page, nav-bar button
 if (url.startsWith('https://github.com/')) {
+    const repo = extractGithubRepo(url);
+
     // find the top navigation bar ("Code / Issues / …")
     const nav = document.querySelector('nav.UnderlineNav-body') ||
                 document.querySelector('ul.UnderlineNav-body');
+
     // proceed only if nav exists and redirectors haven't been added
-    if (nav && !nav.querySelector('.github-redirectors')) {
+    if (repo && nav && !nav.querySelector('.github-redirectors')) {
         // filter out GitHub item itself
         const redirectors = redirectors_map.github.filter(site => 
             site.prefix !== "https://github.com/"
         );
-        const repo = extractGithubRepo(url);
         console.log(`repo: ${repo}`);
         redirectors.forEach(site => {
             const li = document.createElement('li');
@@ -72,7 +79,24 @@ if (url.startsWith('https://github.com/')) {
             a.href = site.url(repo);
             a.rel = 'noopener';
             a.target = '_blank';
-            a.textContent = ` ${site.name} `;
+            
+            // Add logo if available (mimic native GitHub structure)
+            if (site.logo) {
+                const img = document.createElement('img');
+                img.src = site.logo;
+                img.alt = site.name;
+                img.width = 16;
+                img.height = 16;
+                img.className = 'UnderlineNav-octicon d-none d-sm-inline';
+                img.style.marginRight = '8px';
+                a.appendChild(img);
+            }
+            
+            // Add text content in span
+            const span = document.createElement('span');
+            span.setAttribute('data-content', site.name);
+            span.textContent = site.name;
+            a.appendChild(span);
             
             li.appendChild(a);
             nav.appendChild(li);

@@ -3,17 +3,23 @@ const redirectors_map = {
     {
       name: "GitHub",
       prefix: "https://github.com/",
-      url: repo => `https://github.com/${repo}`
+      url: repo => `https://github.com/${repo}`,
+      logo: "https://raw.githubusercontent.com/sc-hua/logos/refs/heads/main/github.svg",
+      hover: "View on GitHub",
     },
     {
       name: "DeepWiki",
       prefix: "https://deepwiki.com/",
-      url: repo => `https://deepwiki.com/${repo}`
+      url: repo => `https://deepwiki.com/${repo}`,
+      logo: "https://raw.githubusercontent.com/sc-hua/logos/refs/heads/main/devin.svg",
+      hover: "View on DeepWiki",
     },
     {
       name: "Z-Read",
       prefix: "https://zread.ai/",
-      url: repo => `https://zread.ai/${repo}`
+      url: repo => `https://zread.ai/${repo}`,
+      logo: "https://raw.githubusercontent.com/sc-hua/logos/refs/heads/main/zread.svg",
+      hover: "View on Z-Read",
     },
   ],
   arxiv: [
