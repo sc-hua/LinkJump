@@ -1,7 +1,6 @@
 var url = window.location.href;
 
-// modify arxiv abs page
-// for a exact paper, e.g. "https://arxiv.org/abs/1706.03762"
+// modify arxiv abs page, for an exact paper, e.g. "https://arxiv.org/abs/1706.03762"
 if (url.startsWith('https://arxiv.org/abs/')) {
     const ul = document.querySelector('div.full-text ul');
     const redirectors = redirectors_map.arxiv.filter(site => 
@@ -14,14 +13,17 @@ if (url.startsWith('https://arxiv.org/abs/')) {
         console.log(`paperId: ${paperId}`);
         redirectors.forEach(site => {
             const li = document.createElement('li');
-            li.innerHTML = `<a class="link-jumps" href="${site.url(paperId)}">${site.name}</a>`;
+            const a = document.createElement('a');
+            a.className = 'link-jumps';
+            a.href = site.url(paperId);
+            a.textContent = site.name;
+            li.appendChild(a);
             ul.appendChild(li);
         });
     }
 }
 
-// modify arxiv list page for each arxiv item
-// for a list of papers, e.g. "https://arxiv.org/list/cs.CV/recent"
+// modify arxiv list page for each arxiv item, for a list of papers, e.g. "https://arxiv.org/list/cs.CV/recent"
 if (url.startsWith('https://arxiv.org/list/')) {
     const dts = document.querySelectorAll('#articles dt');
     const redirectors = redirectors_map.arxiv.filter(site => 
@@ -33,8 +35,15 @@ if (url.startsWith('https://arxiv.org/list/')) {
         if (dt && !dt.querySelector('.link-jumps')) { // proceed only if conditions are met
             const paperId = dt.querySelectorAll('a')[1].id;
             redirectors.forEach(site => {
-                dt.innerHTML = dt.innerHTML.trim().slice(0, -1) +
-                    `, <a class="link-jumps" href="${site.url(paperId)}"> ${site.name.toLowerCase()} </a>]`;
+                const a = document.createElement('a');
+                a.className = 'link-jumps';
+                a.href = site.url(paperId);
+                a.textContent = ` ${site.name.toLowerCase()} `;
+                
+                // Remove the closing bracket and add the link with new bracket
+                dt.innerHTML = dt.innerHTML.trim().slice(0, -1) + ', ';
+                dt.appendChild(a);
+                dt.appendChild(document.createTextNode(']'));
             });
         }
     });
@@ -57,9 +66,15 @@ if (url.startsWith('https://github.com/')) {
         redirectors.forEach(site => {
             const li = document.createElement('li');
             li.className = 'd-inline-flex github-redirectors';
-            li.innerHTML = `<a class="UnderlineNav-item no-wrap"
-                            href="${site.url(repo)}" rel="noopener" target="_blank"> 
-                                ${site.name} </a>`;
+            
+            const a = document.createElement('a');
+            a.className = 'UnderlineNav-item no-wrap';
+            a.href = site.url(repo);
+            a.rel = 'noopener';
+            a.target = '_blank';
+            a.textContent = ` ${site.name} `;
+            
+            li.appendChild(a);
             nav.appendChild(li);
         });
     }
@@ -72,162 +87,114 @@ if (url.includes('https://www.scholar-inbox.com')) {
         site.prefix !== "https://arxiv.org/pdf/"
     );
     
-    // Extract arXiv ID from container by searching for arXiv links
+    // Extract arXiv ID from container
     function extractArxivIdFromContainer(container) {
-        // Look for arXiv links in the container
         const arxivLink = container.querySelector('a[href*="arxiv.org/abs/"], a[href*="arxiv.org/pdf/"]');
-        if (arxivLink) {
-            const match = arxivLink.href.match(/arxiv\.org\/(?:abs|pdf)\/([0-9]{4}\.[0-9]{4,5}(?:v\d+)?)/);
-            if (match) return match[1];
-        }
-        return null;
+        const match = arxivLink?.href.match(/arxiv\.org\/(?:abs|pdf)\/([0-9]{4}\.[0-9]{4,5}(?:v\d+)?)/);
+        return match?.[1] || null;
     }
 
-    // 创建通用的 MUI 按钮元素
-    function createMuiButton(site, paperId, extraClassName = '') {
+    // Button and tooltip styles
+    const BUTTON_STYLES = {
+        backgroundColor: 'transparent', border: 'none', padding: '8px', margin: '0 2px', 
+        borderRadius: '30px', transition: 'background-color 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms', 
+        position: 'relative'
+    };
+
+    const TOOLTIP_STYLES = {
+        position: 'fixed', transform: 'translate(-50%, -100%)', backgroundColor: 'rgba(97, 97, 97, 0.92)',
+        color: 'white', padding: '4px 8px', borderRadius: '4px', fontSize: '0.6875rem', margin: '0',
+        overflowWrap: 'break-word', zIndex: '999999', pointerEvents: 'none',
+    };
+
+    // Create MUI-style redirect button
+    function createButton(site, paperId, needWrapper = false) {
         const btn = document.createElement('button');
-        btn.className = `MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium ${extraClassName}`.trim();
+        btn.className = `MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium link-jump-button`;
         btn.type = 'button';
         btn.setAttribute('aria-label', `Open ${site.name}`);
-        
-        // 设置样式
-        Object.assign(btn.style, {
-            backgroundColor: 'transparent', border: 'none', padding: '8px', margin: '0 2px', borderRadius: '30px',
-            transition: 'background-color 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms', position: 'relative'
-        });
-        
-        // 创建自定义 tooltip
+        Object.assign(btn.style, BUTTON_STYLES);
+
         let tooltip = null;
-        if (site.hover) {
-            const showTooltip = () => {
-                if (tooltip) return;
-                
+
+        // Combined mouse event handler
+        const handleMouse = (isEnter) => {
+            btn.style.backgroundColor = isEnter ? 'rgba(0, 0, 0, 0.04)' : 'transparent';
+            
+            if (!site.hover) return;
+            
+            if (isEnter && !tooltip) {
                 const rect = btn.getBoundingClientRect();
                 tooltip = document.createElement('div');
                 tooltip.textContent = site.hover;
                 tooltip.className = 'link-jump-tooltip';
-                
-                Object.assign(tooltip.style, {
-                    position: 'fixed',
+                Object.assign(tooltip.style, TOOLTIP_STYLES, {
                     left: `${rect.left + rect.width / 2}px`,
-                    top: `${rect.top - 8}px`,
-                    transform: 'translate(-50%, -100%)',
-                    backgroundColor: 'rgba(0, 0, 0, 0.9)',
-                    color: 'white',
-                    padding: '6px 10px',
-                    borderRadius: '6px',
-                    fontSize: '12px',
-                    whiteSpace: 'nowrap',
-                    zIndex: '999999',
-                    pointerEvents: 'none',
-                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)'
+                    top: `${rect.top - 8}px`
                 });
-                
                 document.body.appendChild(tooltip);
-            };
-            
-            const hideTooltip = () => {
-                if (tooltip) {
-                    tooltip.remove();
-                    tooltip = null;
-                }
-            };
-            
-            btn.addEventListener('mouseenter', showTooltip);
-            btn.addEventListener('mouseleave', hideTooltip);
-        }
-        
-        // 添加 hover 效果
-        btn.addEventListener('mouseenter', () => {
-            btn.style.backgroundColor = 'rgba(0, 0, 0, 0.04)';
-        });
-        btn.addEventListener('mouseleave', () => {
-            btn.style.backgroundColor = 'transparent';
-        });
-        
-        // 添加点击事件
+            } else if (!isEnter && tooltip) {
+                tooltip.remove();
+                tooltip = null;
+            }
+        };
+
+        btn.addEventListener('mouseenter', () => handleMouse(true));
+        btn.addEventListener('mouseleave', () => handleMouse(false));
         btn.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
             window.open(site.url(paperId), '_blank', 'noopener');
         });
 
-        // 添加内容链接
+        // Create link content
         const link = document.createElement('a');
         link.className = 'MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways';
         link.href = site.url(paperId);
         link.target = '_blank';
         link.rel = 'noopener';
 
-        // 如果有 logo，使用图片；否则使用文本
         if (site.logo) {
             const img = document.createElement('img');
-            img.src = site.logo;
-            img.alt = site.name;
-            Object.assign(img.style, {
-                width: '20px',
-                height: '20px',
-                objectFit: 'contain',
-                display: 'block'
-            });
+            Object.assign(img, { src: site.logo, alt: site.name });
+            Object.assign(img.style, { width: '20px', height: '20px', objectFit: 'contain', display: 'block' });
             link.appendChild(img);
         } else {
             link.textContent = site.name;
         }
 
-        // 添加 MUI TouchRipple 效果容器
-        const ripple = document.createElement('span');
-        ripple.className = 'MuiTouchRipple-root css-w0pj6f';
-
         btn.appendChild(link);
-        btn.appendChild(ripple);
+        btn.appendChild(Object.assign(document.createElement('span'), { className: 'MuiTouchRipple-root css-w0pj6f' }));
+
+        // Return with or without wrapper
+        if (needWrapper) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'MuiBox-root css-1elqj97 link-jump-div';
+            wrapper.appendChild(btn);
+            return wrapper;
+        }
         return btn;
     }
 
-    // Create button for css-16cfwlk container (MuiBox-root wrapper)
-    function createMuiBoxButton(site, paperId) {
-        const wrapper = document.createElement('div');
-        wrapper.className = 'MuiBox-root css-1elqj97 link-jump-div';
-
-        const btn = createMuiButton(site, paperId, 'link-jump-button');
-        wrapper.appendChild(btn);
-        return wrapper;
-    }
-
-    // Create button for css-3u7l7h container (direct button)
-    function createDirectButton(site, paperId) {
-        return createMuiButton(site, paperId, 'link-jump-button');
-    }
-
     function processPaperItems() {
-        // infinite-scroll-component arxiv item list
+        // Process infinite-scroll paper items
         const paperDivs = document.querySelectorAll('div.css-lam9o6[id^="paper"]');
         
         paperDivs.forEach(paperDiv => {
-            // Skip if redirects have already been injected
+            // Skip if already processed
             if (paperDiv.dataset.arxivRedirectsInjected === '1') return;
             
-            // Extract arXiv ID from links within the paper div
             const paperId = extractArxivIdFromContainer(paperDiv);
             if (!paperId) return;
             
-            // Handle css-16cfwlk container (MuiBox-root buttons)
+            // Add buttons to different containers
             const smallContainer = paperDiv.querySelector('.css-16cfwlk');
-            if (smallContainer) {
-                redirectors.forEach(site => {
-                    const btn = createMuiBoxButton(site, paperId);
-                    smallContainer.appendChild(btn);
-                });
-            }
-            
-            // Handle css-3u7l7h container (direct buttons)
             const largeContainer = paperDiv.querySelector('.css-3u7l7h');
-            if (largeContainer) {
-                redirectors.forEach(site => {
-                    const btn = createDirectButton(site, paperId);
-                    largeContainer.appendChild(btn);
-                });
-            }
+            
+            redirectors.forEach(site => {
+                if (smallContainer) smallContainer.appendChild(createButton(site, paperId, true));
+                if (largeContainer) largeContainer.appendChild(createButton(site, paperId, false));
+            });
             
             paperDiv.dataset.arxivRedirectsInjected = '1';
         });
