@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkJump - URL Redirector</title>
+    <link rel="stylesheet" href="style.css">
+    </head>
+<body>
+    <!-- Fixed top-right controls -->
+    <div class="fixed-controls">
+        <button id="settingsBtn" class="action-btn" title="Manage Custom Rules">⚙️</button>
+        <button id="themeBtn" class="action-btn" title="Toggle theme">🌓</button>
+    </div>
+    
+    <div class="container">
+        <header>
+            <h1>🔗 LinkJump</h1>
+            <p>Discover alternative links for your URLs</p>
+        </header>        <div class="main-search" id="mainSearch">
+            <div class="search-input-container">
+                <div id="searchLoader" class="search-loader" style="display: none;">🔍</div>
+                <input 
+                    type="url" 
+                    id="urlInput" 
+                    placeholder="Start typing URL (e.g., arxiv.org/abs/1706.03762)"
+                    autocomplete="url"
+                >
+                <button id="pasteBtn" class="paste-btn" title="Paste from clipboard">📋</button>
+            </div>
+        </div>
+
+        <div id="status" class="status"></div>
+        
+        <div id="results" class="results-container"></div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Custom Rules Manager</h2>
+                <button id="closeModal" class="close-btn">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="section">
+                    <h3>Add Custom Redirector</h3>
+                    <div class="form-group">
+                        <label>Site Type:</label>
+                        <input type="text" id="customType" placeholder="e.g., custom-site">
+                    </div>
+                    <div class="form-group">
+                        <label>Name:</label>
+                        <input type="text" id="customName" placeholder="e.g., My Custom Site">
+                    </div>
+                    <div class="form-group">
+                        <label>URL Prefix:</label>
+                        <input type="url" id="customPrefix" placeholder="e.g., https://example.com/">
+                    </div>
+                    <div class="form-group">
+                        <label>Redirect URL Template:</label>
+                        <input type="text" id="customTemplate" placeholder="e.g., https://redirect.com/{id}">
+                        <small>Use {id} as placeholder for extracted identifier</small>
+                    </div>
+                    <button id="addRedirector">Add Redirector</button>
+                </div>
+
+                <div class="section">
+                    <h3>Add Mirror Site</h3>
+                    <div class="form-group">
+                        <label>Original URL:</label>
+                        <input type="url" id="mirrorOriginal" placeholder="e.g., https://example.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Mirror URL:</label>
+                        <input type="url" id="mirrorUrl" placeholder="e.g., https://mirror.example.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Display Name:</label>
+                        <input type="text" id="mirrorName" placeholder="e.g., To mirror.example.com">
+                    </div>
+                    <button id="addMirror">Add Mirror</button>
+                </div>
+
+                <div class="section">
+                    <h3>Import/Export</h3>
+                    <div class="form-group">
+                        <button id="exportRules">Export Rules</button>
+                        <input type="file" id="importFile" accept=".json" style="display: none;">
+                        <button id="importRules">Import Rules</button>
+                        <button id="clearRules" class="danger-btn">Clear All Custom Rules</button>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Current Custom Rules</h3>
+                    <div id="currentRules" class="rules-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load scripts with error handling -->
+    <script>
+        // Add global error handler
+        window.addEventListener('error', (e) => {
+            console.error('Script error:', e.error, 'File:', e.filename, 'Line:', e.lineno);
+            document.getElementById('status').textContent = 'Error: ' + e.error.message;
+        });
+    </script>
+    
+    <script src="utils.js"></script>
+    <script>console.log('utils.js loaded');</script>
+    
+    <script src="config-manager.js"></script>
+    <script>console.log('config-manager.js loaded');</script>
+    
+    <script src="theme-manager.js"></script>
+    <script>console.log('theme-manager.js loaded');</script>
+    
+    <script src="rules-engine.js"></script>
+    <script>console.log('rules-engine.js loaded');</script>
+    
+    <script src="ui-controller.js"></script>
+    <script>console.log('ui-controller.js loaded');</script>
+    
+    <script src="app.js"></script>
+    <script>console.log('app.js loaded');</script>
+</body>
+</html>
