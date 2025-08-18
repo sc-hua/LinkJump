@@ -17,7 +17,7 @@ function createRedirectButtons(container, redirectors, identifier, tabId) {
 
 function createMirrorButtons(container, mirrors_map, currentUrl, tabId) {
     let has_mirrors = false;
-    for (const [prefix, mirror] of Object.entries(mirrors_map)) {
+    for (const [prefix, mirrors] of Object.entries(mirrors_map)) {
         if (currentUrl.startsWith(prefix)) {
             if (container.innerHTML !== '') { // add divider
                 const divider = document.createElement('hr');
@@ -27,18 +27,20 @@ function createMirrorButtons(container, mirrors_map, currentUrl, tabId) {
             }
 
             // create mirror button
-            const mirrorBtn = document.createElement('button');
-            mirrorBtn.innerText = mirror.hover;
-            mirrorBtn.onclick = (e) => {
-                const targetUrl = currentUrl.replace(prefix, mirror.mirror);
-                if (e.metaKey || e.ctrlKey) {  // ⌘ (Mac) or Ctrl (Windows/Linux), create another new tab
-                    chrome.tabs.create({ url: targetUrl });
-                } else {  // simple click, update current tab
-                    chrome.tabs.update(tabId, { url: targetUrl });
-                }
-            };
-            container.appendChild(mirrorBtn);
-            has_mirrors = true;
+            for (const mirror of mirrors) {
+                const mirrorBtn = document.createElement('button');
+                mirrorBtn.innerText = mirror.hover;
+                mirrorBtn.onclick = (e) => {
+                    const targetUrl = currentUrl.replace(prefix, mirror.mirror);
+                    if (e.metaKey || e.ctrlKey) {  // ⌘ (Mac) or Ctrl (Windows/Linux), create another new tab
+                        chrome.tabs.create({ url: targetUrl });
+                    } else {  // simple click, update current tab
+                        chrome.tabs.update(tabId, { url: targetUrl });
+                    }
+                };
+                container.appendChild(mirrorBtn);
+                has_mirrors = true;
+            }
         }
     }
     return has_mirrors;

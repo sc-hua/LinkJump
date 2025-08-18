@@ -76,14 +76,22 @@ const redirectors_map = {
 
 const mirrors_map = {
   // main mirrors
-  "https://huggingface.co": {
-    mirror: "https://hf-mirror.com",
-    hover: "To hf-mirror.com"
-  },
-  "https://github.com": {
-    mirror: "https://kkgithub.com",
-    hover: "To kkgithub.com"
-  },
+  "https://huggingface.co": [
+    {
+      mirror: "https://hf-mirror.com",
+      hover: "To hf-mirror.com"
+    }
+  ],
+  "https://github.com": [
+    {
+      mirror: "https://kkgithub.com",
+      hover: "To kkgithub.com"
+    },
+    {
+      mirror: "https://bgithub.xyz",
+      hover: "To bgithub.xyz"
+    }
+  ]
 }
 
 function remove_prefix(url, prefixes) {
