@@ -9,8 +9,9 @@
 <body>
     <!-- Fixed top-right controls -->
     <div class="fixed-controls">
-        <button id="settingsBtn" class="action-btn" title="Manage Custom Rules">⚙️</button>
-        <button id="themeBtn" class="action-btn" title="Toggle theme">🌓</button>
+        <button id="themeBtn" class="action-btn" title="Toggle theme" data-icon="auto"></button>
+        <button id="settingsBtn" class="action-btn" title="Manage Custom Rules" data-icon="settings"></button>
+        <button id="githubBtn" class="action-btn" title="See GitHub" data-icon="github"></button>
     </div>
     
     <div class="container">
@@ -26,8 +27,8 @@
                     placeholder="Start typing URL (e.g., arxiv.org/abs/1706.03762)"
                     autocomplete="url"
                 >
-                <button id="clearBtn" class="clear-btn" title="Clear input" style="display: none;">✖</button>
-                <button id="pasteBtn" class="paste-btn" title="Paste from clipboard">📋</button>
+                <button id="clearBtn" class="clear-btn" title="Clear input" style="display: none;" data-icon="clear"></button>
+                <button id="pasteBtn" class="paste-btn" title="Paste from clipboard" data-icon="paste"></button>
             </div>
         </div>
 
@@ -110,23 +111,12 @@
             document.getElementById('status').textContent = 'Error: ' + e.error.message;
         });
     </script>
-    
+    <script src="icon-config.js"></script>
     <script src="utils.js"></script>
-    <script>console.log('utils.js loaded');</script>
-    
     <script src="config-manager.js"></script>
-    <script>console.log('config-manager.js loaded');</script>
-    
     <script src="theme-manager.js"></script>
-    <script>console.log('theme-manager.js loaded');</script>
-    
     <script src="rules-engine.js"></script>
-    <script>console.log('rules-engine.js loaded');</script>
-    
     <script src="ui-controller.js"></script>
-    <script>console.log('ui-controller.js loaded');</script>
-    
     <script src="app.js"></script>
-    <script>console.log('app.js loaded');</script>
 </body>
 </html>

@@ -199,6 +199,9 @@ header p {
     color: var(--text-secondary);
     cursor: pointer;
     transition: all 0.5s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .clear-btn:hover {
@@ -225,6 +228,9 @@ header p {
     color: var(--text-secondary);
     cursor: pointer;
     transition: all 0.5s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .paste-btn:hover {
@@ -246,12 +252,131 @@ header p {
     color: var(--text-primary);
     cursor: pointer;
     transition: all 0.5s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .action-btn:hover {
     background-color: var(--hover-bg);
     color: var(--hover-text);
     transform: translateY(-1px);
+}
+
+/* Button icon styles - supports img, svg, and span with fallback */
+.btn-icon, 
+.action-btn img.btn-icon, 
+.action-btn svg.btn-icon,
+.action-btn span.btn-icon,
+.clear-btn img.btn-icon,
+.clear-btn svg.btn-icon,
+.clear-btn span.btn-icon,
+.paste-btn img.btn-icon,
+.paste-btn svg.btn-icon,
+.paste-btn span.btn-icon {
+    width: 18px;
+    height: 18px;
+    display: inline-block;
+    vertical-align: middle;
+    transition: all 0.5s ease;
+}
+
+/* Image icons - both nested and direct */
+.btn-icon img, 
+.action-btn img.btn-icon, 
+.clear-btn img.btn-icon, 
+.paste-btn img.btn-icon {
+    filter: brightness(0) saturate(100%); /* Make it black in light theme */
+    transition: filter 0.5s ease;
+}
+
+/* SVG icons - both nested and direct */
+.btn-icon svg,
+.action-btn svg.btn-icon,
+.clear-btn svg.btn-icon,
+.paste-btn svg.btn-icon {
+    fill: var(--text-primary);
+    transition: fill 0.5s ease;
+}
+
+/* Span/emoji icons */
+.btn-icon span,
+.action-btn span.btn-icon,
+.clear-btn span.btn-icon,
+.paste-btn span.btn-icon {
+    font-size: 18px;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+    text-align: center;
+    width: 18px;
+    height: 18px;
+    position: relative;
+    transform: translateX(-0.125rem); /* Fine-tune horizontal position for emoji */
+}
+
+/* Hover states - both nested and direct icons */
+.action-btn:hover .btn-icon img,
+.action-btn:hover img.btn-icon,
+.clear-btn:hover .btn-icon img,
+.clear-btn:hover img.btn-icon,
+.paste-btn:hover .btn-icon img,
+.paste-btn:hover img.btn-icon {
+    filter: brightness(0) saturate(100%) invert(100%); /* Make it white on hover */
+}
+
+.action-btn:hover .btn-icon svg,
+.action-btn:hover svg.btn-icon,
+.clear-btn:hover .btn-icon svg,
+.clear-btn:hover svg.btn-icon,
+.paste-btn:hover .btn-icon svg,
+.paste-btn:hover svg.btn-icon {
+    fill: var(--hover-text);
+}
+
+/* Dark theme adjustments - both nested and direct icons */
+[data-theme="dark"] .btn-icon img,
+[data-theme="dark"] .action-btn img.btn-icon,
+[data-theme="dark"] .clear-btn img.btn-icon,
+[data-theme="dark"] .paste-btn img.btn-icon {
+    filter: brightness(0) saturate(100%) invert(80%); /* Light gray in dark theme */
+}
+
+[data-theme="dark"] .btn-icon svg,
+[data-theme="dark"] .action-btn svg.btn-icon,
+[data-theme="dark"] .clear-btn svg.btn-icon,
+[data-theme="dark"] .paste-btn svg.btn-icon {
+    fill: var(--text-primary);
+}
+
+[data-theme="dark"] .action-btn:hover .btn-icon img,
+[data-theme="dark"] .action-btn:hover img.btn-icon,
+[data-theme="dark"] .clear-btn:hover .btn-icon img,
+[data-theme="dark"] .clear-btn:hover img.btn-icon,
+[data-theme="dark"] .paste-btn:hover .btn-icon img,
+[data-theme="dark"] .paste-btn:hover img.btn-icon {
+    filter: brightness(0) saturate(100%) invert(100%); /* White on hover in dark theme */
+}
+
+/* Auto theme (system preference) - both nested and direct icons */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .btn-icon img,
+    :root:not([data-theme="light"]) .action-btn img.btn-icon,
+    :root:not([data-theme="light"]) .clear-btn img.btn-icon,
+    :root:not([data-theme="light"]) .paste-btn img.btn-icon {
+        filter: brightness(0) saturate(100%) invert(80%);
+    }
+    
+    :root:not([data-theme="light"]) .action-btn:hover .btn-icon img,
+    :root:not([data-theme="light"]) .action-btn:hover img.btn-icon,
+    :root:not([data-theme="light"]) .clear-btn:hover .btn-icon img,
+    :root:not([data-theme="light"]) .clear-btn:hover img.btn-icon,
+    :root:not([data-theme="light"]) .paste-btn:hover .btn-icon img,
+    :root:not([data-theme="light"]) .paste-btn:hover img.btn-icon {
+        filter: brightness(0) saturate(100%) invert(100%);
+    }
 }
 
 /* Status */

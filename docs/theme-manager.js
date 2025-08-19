@@ -3,12 +3,6 @@ class ThemeManager {
     constructor() {
         this.themes = ['auto', 'light', 'dark'];
         this.currentTheme = this.loadTheme();
-        this.themeIcons = {
-            'auto': '🌓',
-            'light': '☀️', 
-            'dark': '🌙'
-        };
-        
         this.applyTheme();
     }
 
@@ -52,9 +46,9 @@ class ThemeManager {
         return this.currentTheme;
     }
 
-    // Get current theme icon
-    getCurrentIcon() {
-        return this.themeIcons[this.currentTheme];
+    // Get current theme icon name
+    getCurrentIconName() {
+        return this.currentTheme;
     }
 
     // Get theme description for tooltip

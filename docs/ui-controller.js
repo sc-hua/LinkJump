@@ -14,6 +14,7 @@ class UIController {
             searchLoader: document.getElementById('searchLoader'),
             clearBtn: document.getElementById('clearBtn'),
             pasteBtn: document.getElementById('pasteBtn'),
+            githubBtn: document.getElementById('githubBtn'),
             settingsBtn: document.getElementById('settingsBtn'),
             themeBtn: document.getElementById('themeBtn'),
             status: document.getElementById('status'),
@@ -24,7 +25,8 @@ class UIController {
         };
 
         this.initializeEventListeners();
-        this.updateThemeButton();
+        this.initializeIcons(); // Initialize all button icons first
+        this.updateThemeButton(); // Then update theme button title
         this.updateClearButtonVisibility(); // Initialize clear button state
         this.setupWindowFocusHandler();
     }
@@ -59,11 +61,30 @@ class UIController {
         }, 100);
     }
 
+    // Initialize all button icons based on config
+    initializeIcons() {
+        // Find all buttons with data-icon attribute
+        const iconButtons = document.querySelectorAll('[data-icon]');
+        
+        iconButtons.forEach(button => {
+            const iconName = button.getAttribute('data-icon');
+            
+            // Special handling for theme button - use current theme as icon name
+            if (button.id === 'themeBtn') {
+                this.updateThemeButtonIcon();
+            } else {
+                const iconHtml = renderIcon(iconName);
+                button.innerHTML = iconHtml;
+            }
+        });
+    }
+
     // Initialize all event listeners
     initializeEventListeners() {
         // Main functionality
         this.elements.clearBtn.addEventListener('click', () => this.handleClearInput());
         this.elements.pasteBtn.addEventListener('click', () => this.handlePasteFromClipboard());
+        this.elements.githubBtn.addEventListener('click', () => this.handleGitHubClick());
         this.elements.settingsBtn.addEventListener('click', () => this.openSettings());
         this.elements.themeBtn.addEventListener('click', () => this.handleThemeToggle());
         
@@ -535,18 +556,33 @@ class UIController {
         }
     }
 
+    // Handle GitHub button click
+    handleGitHubClick() {
+        window.open('https://github.com/sc-hua/LinkJump', '_blank', 'noopener,noreferrer');
+    }
+
     // Handle theme toggle
     handleThemeToggle() {
         const newTheme = this.themeManager.nextTheme();
         this.updateThemeButton();
+        this.updateThemeButtonIcon(); // Update icon after theme change
         console.log(`Theme changed to: ${newTheme}`);
     }
 
     // Update theme button appearance
     updateThemeButton() {
         if (this.elements.themeBtn) {
-            this.elements.themeBtn.textContent = this.themeManager.getCurrentIcon();
+            // Icons are now handled by updateThemeButtonIcon(), just update title
             this.elements.themeBtn.title = this.themeManager.getThemeDescription();
+        }
+    }
+
+    // Update theme button icon based on current theme
+    updateThemeButtonIcon() {
+        if (this.elements.themeBtn) {
+            const currentTheme = this.themeManager.getCurrentIconName();
+            const iconHtml = renderIcon(currentTheme);
+            this.elements.themeBtn.innerHTML = iconHtml;
         }
     }
 
