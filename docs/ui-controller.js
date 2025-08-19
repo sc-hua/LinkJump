@@ -6,8 +6,12 @@ class UIController {
         this.themeManager = new ThemeManager();
         
         // Debounce timer for auto-search
-        this.searchTimer = null;
-        
+        this.searchDelayTimer = null;
+        // delay time, ms
+        this.autoSearchDelayTime = 300;
+        // this.enableDelay = true;
+        this.enableDelay = false;
+
         // DOM elements
         this.elements = {
             urlInput: document.getElementById('urlInput'),
@@ -27,56 +31,43 @@ class UIController {
         this.initializeEventListeners();
         this.initializeIcons(); // Initialize all button icons first
         this.updateThemeButton(); // Then update theme button title
-        this.updateClearButtonVisibility(); // Initialize clear button state
-        this.updateJumpButtonVisibility(); // Initialize jump button state
+        this.handleSearch(true); // Initialize button states and UI
         this.setupWindowFocusHandler();
     }
 
+    // Focus input if modal is not open
+    focusInput() {
+        if (!this.elements.modal.style.display || this.elements.modal.style.display === 'none') {
+            this.elements.urlInput.focus();
+        }
+    }
+
     // Auto focus search box when window gains focus
+    // Focus when window/tab becomes active
     setupWindowFocusHandler() {
-        // Focus when window/tab becomes active
         window.addEventListener('focus', () => {
             // Small delay to ensure the window is fully focused
-            setTimeout(() => {
-                if (!this.elements.modal.style.display || this.elements.modal.style.display === 'none') {
-                    // Only focus if modal is not open
-                    this.elements.urlInput.focus();
-                }
-            }, 50);
+            setTimeout(() => this.focusInput(), 50);
         });
         
         // Also focus on page visibility change (when tab becomes visible)
         document.addEventListener('visibilitychange', () => {
             if (!document.hidden) {
-                setTimeout(() => {
-                    if (!this.elements.modal.style.display || this.elements.modal.style.display === 'none') {
-                        this.elements.urlInput.focus();
-                    }
-                }, 50);
+                setTimeout(() => this.focusInput(), 50);
             }
         });
         
         // Initial focus on page load
-        setTimeout(() => {
-            this.elements.urlInput.focus();
-        }, 100);
+        setTimeout(() => this.focusInput(), 100);
     }
 
     // Initialize all button icons based on config
+    // Find all buttons with data-icon attribute
     initializeIcons() {
-        // Find all buttons with data-icon attribute
-        const iconButtons = document.querySelectorAll('[data-icon]');
-        
-        iconButtons.forEach(button => {
+        document.querySelectorAll('[data-icon]').forEach(button => {
             const iconName = button.getAttribute('data-icon');
-            
-            // Special handling for theme button - use current theme as icon name
-            if (button.id === 'themeBtn') {
-                this.updateThemeButtonIcon();
-            } else {
-                const iconHtml = renderIcon(iconName);
-                button.innerHTML = iconHtml;
-            }
+            const iconHtml = renderIcon(iconName);
+            button.innerHTML = iconHtml;
         });
     }
 
@@ -93,23 +84,18 @@ class UIController {
         // Input handlers
         this.elements.urlInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
-                this.clearSearchTimer();
-                this.handleAnalyzeUrl();
+                this.handleSearch(true); // Immediate execution
             }
         });
         
         // Auto-search on input with debounce
         this.elements.urlInput.addEventListener('input', () => {
-            this.updateClearButtonVisibility();
-            this.updateJumpButtonVisibility();
-            this.scheduleAutoSearch();
+            this.handleSearch();
         });
         
         this.elements.urlInput.addEventListener('paste', () => {
             setTimeout(() => {
-                this.updateClearButtonVisibility();
-                this.updateJumpButtonVisibility();
-                this.scheduleAutoSearch();
+                this.handleSearch();
             }, 100);
         });
 
@@ -154,29 +140,11 @@ class UIController {
             this.handleClearRules());
     }
 
-    // Schedule auto-search with debounce (500ms delay)
-    scheduleAutoSearch() {
-        this.clearSearchTimer();
-        this.searchTimer = setTimeout(() => {
-            this.handleAnalyzeUrl();
-        }, 500);
-    }
-
-    // Clear search timer
-    clearSearchTimer() {
-        if (this.searchTimer) {
-            clearTimeout(this.searchTimer);
-            this.searchTimer = null;
-        }
-    }
-
     // Handle clear input button
     handleClearInput() {
         this.elements.urlInput.value = '';
-        this.elements.urlInput.focus();
-        this.updateClearButtonVisibility();
-        this.updateJumpButtonVisibility();
-        this.handleAnalyzeUrl(); // This will clear results and remove search-active class
+        this.focusInput();
+        this.handleSearch(true); // This will clear results and remove search-active class
     }
 
     // Handle jump to URL button
@@ -193,42 +161,55 @@ class UIController {
         }
     }
 
-    // Update clear button visibility based on input content
-    updateClearButtonVisibility() {
-        const hasContent = this.elements.urlInput.value.trim().length > 0;
+    // Handle URL analysis with built-in debounce and button state update
+    handleSearch(immediate = false) {
+        // Update button states first
+        const inputUrl = this.elements.urlInput.value.trim();
+        const hasContent = inputUrl.length > 0;
+        const hasValidUrl = hasContent && this.isValidUrl(normalizeUrl(inputUrl));
+        
         this.elements.clearBtn.style.display = hasContent ? 'block' : 'none';
-    }
-
-    // Update jump button visibility based on input content
-    updateJumpButtonVisibility() {
-        const inputUrl = this.elements.urlInput.value.trim();
-        const hasValidUrl = inputUrl && this.isValidUrl(normalizeUrl(inputUrl));
         this.elements.jumpBtn.style.display = hasValidUrl ? 'block' : 'none';
-    }
 
-    // Handle URL analysis
-    handleAnalyzeUrl() {
-        const inputUrl = this.elements.urlInput.value.trim();
-        
-        // Clear previous results but keep search-active state if there were results
-        this.elements.results.innerHTML = '';
-        
-        if (!inputUrl) {
+        if (inputUrl) {
+            // Add search-active class for layout transition
+            document.body.classList.add('search-active');
+        } else {
             // Remove search-active class when input is empty
             document.body.classList.remove('search-active');
             this.elements.status.textContent = '';
             this.elements.status.className = 'status';
+            // return;
+        }
+
+        // Clear previous results but keep search-active state if there were results
+        this.elements.results.innerHTML = '';
+        this.elements.status.textContent = ''; // Clear status
+
+        if (!hasContent) {
             return;
         }
 
-        if (!this.isValidUrl(normalizeUrl(inputUrl))) {
+        // Clear any existing timer
+        if (this.searchDelayTimer) {
+            clearTimeout(this.searchDelayTimer);
+            this.searchDelayTimer = null;
+        }
+
+        // If not immediate, schedule with debounce
+        if (!immediate && this.enableDelay) {
+            this.searchDelayTimer = setTimeout(() => {
+                this.handleSearch(true); // Call with immediate=true
+            }, this.autoSearchDelayTime);
+            return;
+        }
+
+        if (hasValidUrl) {
+            this.processUrl(inputUrl);
+        } else {
             this.showStatus('Please enter a valid URL', 'error');
             return;
         }
-
-        this.elements.status.textContent = ''; // Clear status
-        
-        this.processUrl(inputUrl);
     }
 
     // Validate URL format
@@ -246,9 +227,6 @@ class UIController {
         // Normalize URL to handle missing protocols
         const normalizedUrl = normalizeUrl(url);
         const analysis = this.rulesEngine.analyzeUrl(normalizedUrl);
-        
-        // Add search-active class for layout transition
-        document.body.classList.add('search-active');
         
         if (analysis.hasResults) {
             // Display redirectors if available
@@ -363,6 +341,16 @@ class UIController {
         this.elements.status.className = `status ${type}`;
     }
 
+    // Show notification (alert wrapper)
+    showNotification(message) {
+        alert(message);
+    }
+
+    // Show confirmation dialog
+    showConfirmation(message) {
+        return confirm(message);
+    }
+
     // Settings modal methods
     openSettings() {
         this.elements.modal.style.display = 'block';
@@ -373,9 +361,7 @@ class UIController {
         this.elements.modal.style.display = 'none';
         this.clearModalInputs();
         // Focus back to search box when closing settings
-        setTimeout(() => {
-            this.elements.urlInput.focus();
-        }, 100);
+        setTimeout(() => this.focusInput(), 100);
     }
 
     // Clear all modal input fields
@@ -408,21 +394,21 @@ class UIController {
             this.rulesEngine.addRedirector(type, name, prefix, template);
             this.refreshRulesList();
             this.clearModalInputs();
-            alert('Custom redirector added successfully!');
+            this.showNotification('Custom redirector added successfully!');
         } catch (e) {
-            alert('Invalid URL format for prefix');
+            this.showNotification('Invalid URL format for prefix');
         }
     }
 
     // Validate redirector input
     validateRedirectorInput(type, name, prefix, template) {
         if (!type || !name || !prefix || !template) {
-            alert('Please fill in all fields for the redirector');
+            this.showNotification('Please fill in all fields for the redirector');
             return false;
         }
 
         if (!template.includes('{id}')) {
-            alert('URL template must contain {id} placeholder');
+            this.showNotification('URL template must contain {id} placeholder');
             return false;
         }
 
@@ -436,7 +422,7 @@ class UIController {
         const displayName = document.getElementById('mirrorName').value.trim();
 
         if (!originalUrl || !mirrorUrl || !displayName) {
-            alert('Please fill in all fields for the mirror');
+            this.showNotification('Please fill in all fields for the mirror');
             return;
         }
 
@@ -446,9 +432,9 @@ class UIController {
             this.rulesEngine.addMirror(originalUrl, mirrorUrl, displayName);
             this.refreshRulesList();
             this.clearModalInputs();
-            alert('Custom mirror added successfully!');
+            this.showNotification('Custom mirror added successfully!');
         } catch (e) {
-            alert('Invalid URL format');
+            this.showNotification('Invalid URL format');
         }
     }
 
@@ -459,18 +445,18 @@ class UIController {
         const success = await this.configManager.importFromFile(file);
         if (success) {
             this.refreshRulesList();
-            alert('Rules imported successfully!');
+            this.showNotification('Rules imported successfully!');
         } else {
-            alert('Failed to import rules. Please check the file format.');
+            this.showNotification('Failed to import rules. Please check the file format.');
         }
     }
 
     // Handle clearing all custom rules
     handleClearRules() {
-        if (confirm('Are you sure you want to clear all custom rules? This cannot be undone.')) {
+        if (this.showConfirmation('Are you sure you want to clear all custom rules? This cannot be undone.')) {
             this.configManager.clearConfig();
             this.refreshRulesList();
-            alert('All custom rules have been cleared.');
+            this.showNotification('All custom rules have been cleared.');
         }
     }
 
@@ -542,7 +528,7 @@ class UIController {
 
     // Delete redirector with confirmation
     deleteRedirector(type, index) {
-        if (confirm('Are you sure you want to delete this redirector?')) {
+        if (this.showConfirmation('Are you sure you want to delete this redirector?')) {
             this.rulesEngine.removeRedirector(type, index);
             this.refreshRulesList();
         }
@@ -550,7 +536,7 @@ class UIController {
 
     // Delete mirror with confirmation
     deleteMirror(originalUrl, index) {
-        if (confirm('Are you sure you want to delete this mirror?')) {
+        if (this.showConfirmation('Are you sure you want to delete this mirror?')) {
             this.rulesEngine.removeMirror(originalUrl, index);
             this.refreshRulesList();
         }
@@ -562,11 +548,8 @@ class UIController {
             const text = await navigator.clipboard.readText();
             if (text.trim()) {
                 this.elements.urlInput.value = text.trim();
-                this.updateClearButtonVisibility();
-                this.updateJumpButtonVisibility();
-                // Clear any pending timer and trigger immediate analysis
-                this.clearSearchTimer();
-                this.handleAnalyzeUrl();
+                // Trigger immediate analysis
+                this.handleSearch(true);
             }
         } catch (err) {
             console.error('Failed to read clipboard:', err);
@@ -577,10 +560,7 @@ class UIController {
     // Handle GitHub button click
     handleGitHubClick() {
         this.elements.urlInput.value = 'https://github.com/sc-hua/LinkJump';
-        this.updateClearButtonVisibility();
-        this.updateJumpButtonVisibility();
-        this.clearSearchTimer();
-        this.handleAnalyzeUrl();
+        this.handleSearch();
     }
 
     // Handle jump to URL
@@ -606,24 +586,15 @@ class UIController {
     handleThemeToggle() {
         const newTheme = this.themeManager.nextTheme();
         this.updateThemeButton();
-        this.updateThemeButtonIcon(); // Update icon after theme change
         console.log(`Theme changed to: ${newTheme}`);
     }
 
     // Update theme button appearance
     updateThemeButton() {
         if (this.elements.themeBtn) {
-            // Icons are now handled by updateThemeButtonIcon(), just update title
-            this.elements.themeBtn.title = this.themeManager.getThemeDescription();
-        }
-    }
-
-    // Update theme button icon based on current theme
-    updateThemeButtonIcon() {
-        if (this.elements.themeBtn) {
             const currentTheme = this.themeManager.getCurrentIconName();
-            const iconHtml = renderIcon(currentTheme);
-            this.elements.themeBtn.innerHTML = iconHtml;
+            this.elements.themeBtn.innerHTML = renderIcon(currentTheme);
+            this.elements.themeBtn.title = this.themeManager.getThemeDescription();
         }
     }
 

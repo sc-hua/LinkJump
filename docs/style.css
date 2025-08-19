@@ -80,7 +80,7 @@ body {
     background-color: var(--bg-primary);
     border-radius: 12px;
     padding: 2rem;
-    transition: all 0.5s ease;
+    transition: all 0.6s ease;
     transform: translateY(0); /* Initial position */
 }
 
@@ -103,7 +103,7 @@ header {
     text-align: center;
     margin-top: 1rem;
     margin-bottom: 3rem;
-    transition: all 0.5s ease;
+    transition: all 0.3s ease;
 }
 
 header h1 {
@@ -113,14 +113,14 @@ header h1 {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    transition: all 0.5s ease;
+    /* transition: all 0.3s ease; */
 }
 
 header p {
     font-size: 1.2rem;
     color: var(--text-secondary);
     margin: 0;
-    transition: all 0.5s ease;
+    /* transition: all 0.3s ease; */
 }
 
 .search-active header h1 {
@@ -137,7 +137,7 @@ header p {
     align-items: center;
     gap: 1.5rem;
     margin-bottom: 1rem;
-    transition: all 0.5s ease; /* Smooth transition for search area */
+    transition: all 0.3s ease; /* Smooth transition for search area */
 }
 
 .search-input-container {
@@ -157,7 +157,7 @@ header p {
     background-color: var(--input-bg);
     color: var(--text-primary);
     outline: none;
-    transition: all 0.5s ease;
+    transition: all 0.3s ease;
 }
 
 #urlInput:focus {
@@ -182,7 +182,7 @@ header p {
     background-color: transparent;
     color: var(--text-secondary);
     cursor: pointer;
-    transition: all 0.5s ease;
+    transition: all 0.3s ease;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -211,7 +211,7 @@ header p {
     background-color: transparent;
     color: var(--text-secondary);
     cursor: pointer;
-    transition: all 0.5s ease;
+    transition: all 0.3s ease;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -230,7 +230,7 @@ header p {
 /* Jump button inside input */
 .jump-btn {
     position: absolute;
-    left: 0.5rem;
+    left: 0.6rem;
     top: 50%;
     transform: translateY(-50%);
     padding: 0.5rem 0.2rem;
@@ -241,17 +241,14 @@ header p {
     background-color: var(--hover-bg);
     color: var(--hover-text);
     cursor: pointer;
-    transition: all 0.5s ease;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    /* gap: 0.3rem; */
 }
 
 .jump-btn:hover {
     background-color: var(--success-color);
-    color: white;
-    transform: translateY(-50%) scale(1.05);
+    /* color: white; */
 }
 
 .jump-btn:disabled {
@@ -267,7 +264,7 @@ header p {
     background-color: var(--bg-secondary);
     color: var(--text-primary);
     cursor: pointer;
-    transition: all 0.5s ease;
+    transition: all 0.3s ease;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -291,7 +288,7 @@ header p {
     align-items: center;
     justify-content: center;
     vertical-align: middle;
-    transition: all 0.5s ease;
+    transition: all 0.3s ease;
 }
 
 /* Image icons - unified filter */
@@ -419,7 +416,7 @@ header p {
     border-radius: 12px;
     text-align: center;
     font-weight: 500;
-    transition: all 0.5s ease;
+    transition: all 0.3s ease;
     border: 2px solid transparent;
 }
 
@@ -514,7 +511,7 @@ header p {
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    transition: all 0.5s ease;
+    transition: all 0.3s ease;
 }
 
 .close-btn:hover {
@@ -579,7 +576,7 @@ header p {
     color: var(--hover-text);
     cursor: pointer;
     font-size: 14px;
-    transition: all 0.5s ease;
+    transition: all 0.3s ease;
 }
 
 .btn:hover {
