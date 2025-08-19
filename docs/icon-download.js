@@ -8,7 +8,7 @@ const { ICON_CONFIG } = require('./icon-config.js');
 let source = 'tabler_svg_urls';
 const urls = ICON_CONFIG.sources[source];
 
-const outDir = path.join(__dirname, '../icons/web');
+const outDir = path.join(__dirname, './icons/web');
 if (!fs.existsSync(outDir)) fs.mkdirSync(outDir);
 
 function download(url, filename) {

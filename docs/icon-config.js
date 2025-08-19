@@ -5,14 +5,14 @@ const ICON_CONFIG = {
     sources: {
         // Local SVG files - correct path from docs folder
         local: {
-            github: "../icons/web/github.svg",
-            settings: "../icons/web/settings.svg", 
-            auto: "../icons/web/auto.svg",
-            light: "../icons/web/light.svg",
-            dark: "../icons/web/dark.svg",
-            clear: "../icons/web/clear.svg",
-            paste: "../icons/web/paste.svg",
-            link: "../icons/web/link.svg"
+            github: "./icons/web/github.svg",
+            settings: "./icons/web/settings.svg", 
+            auto: "./icons/web/auto.svg",
+            light: "./icons/web/light.svg",
+            dark: "./icons/web/dark.svg",
+            clear: "./icons/web/clear.svg",
+            paste: "./icons/web/paste.svg",
+            link: "./icons/web/link.svg"
         },
 
         // svg URLs
