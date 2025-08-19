@@ -11,7 +11,6 @@ class UIController {
         // DOM elements
         this.elements = {
             urlInput: document.getElementById('urlInput'),
-            searchLoader: document.getElementById('searchLoader'),
             clearBtn: document.getElementById('clearBtn'),
             pasteBtn: document.getElementById('pasteBtn'),
             githubBtn: document.getElementById('githubBtn'),
@@ -180,11 +179,6 @@ class UIController {
         this.elements.clearBtn.style.display = hasContent ? 'block' : 'none';
     }
 
-    // Show/hide search loader
-    showSearchLoader(show = true) {
-        this.elements.searchLoader.style.display = show ? 'block' : 'none';
-    }
-
     // Handle URL analysis
     handleAnalyzeUrl() {
         const inputUrl = this.elements.urlInput.value.trim();
@@ -195,20 +189,17 @@ class UIController {
         if (!inputUrl) {
             // Remove search-active class when input is empty
             document.body.classList.remove('search-active');
-            this.showSearchLoader(false);
             this.elements.status.textContent = '';
             this.elements.status.className = 'status';
             return;
         }
 
         if (!this.isValidUrl(normalizeUrl(inputUrl))) {
-            this.showSearchLoader(false);
             this.showStatus('Please enter a valid URL', 'error');
             return;
         }
 
-        this.showSearchLoader(true);
-        this.elements.status.textContent = ''; // Clear status when loading
+        this.elements.status.textContent = ''; // Clear status
         
         this.processUrl(inputUrl);
     }
@@ -229,8 +220,7 @@ class UIController {
         const normalizedUrl = normalizeUrl(url);
         const analysis = this.rulesEngine.analyzeUrl(normalizedUrl);
         
-        // Hide loader and add search-active class for layout transition
-        this.showSearchLoader(false);
+        // Add search-active class for layout transition
         document.body.classList.add('search-active');
         
         if (analysis.hasResults) {
