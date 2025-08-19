@@ -11,7 +11,8 @@ const ICON_CONFIG = {
             light: "../icons/web/light.svg",
             dark: "../icons/web/dark.svg",
             clear: "../icons/web/clear.svg",
-            paste: "../icons/web/paste.svg"
+            paste: "../icons/web/paste.svg",
+            link: "../icons/web/link.svg"
         },
 
         // svg URLs
@@ -22,7 +23,8 @@ const ICON_CONFIG = {
             light: "https://api.iconify.design/tabler:sun.svg",
             dark: "https://api.iconify.design/tabler:moon-stars.svg",
             clear: "https://api.iconify.design/tabler:clear-all.svg",
-            paste: "https://api.iconify.design/tabler:clipboard.svg"
+            paste: "https://api.iconify.design/tabler:clipboard.svg",
+            link: "https://api.iconify.design/tabler:link.svg"
         },
         
         // Emoji icons
@@ -33,7 +35,8 @@ const ICON_CONFIG = {
             light: "🌞",
             dark: "🌜",
             clear: "✖️",
-            paste: "📋"
+            paste: "📋",
+            link: "🔗"
         }
     }
     

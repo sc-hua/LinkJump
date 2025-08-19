@@ -13,6 +13,7 @@ class UIController {
             urlInput: document.getElementById('urlInput'),
             clearBtn: document.getElementById('clearBtn'),
             pasteBtn: document.getElementById('pasteBtn'),
+            jumpBtn: document.getElementById('jumpBtn'),
             githubBtn: document.getElementById('githubBtn'),
             settingsBtn: document.getElementById('settingsBtn'),
             themeBtn: document.getElementById('themeBtn'),
@@ -27,6 +28,7 @@ class UIController {
         this.initializeIcons(); // Initialize all button icons first
         this.updateThemeButton(); // Then update theme button title
         this.updateClearButtonVisibility(); // Initialize clear button state
+        this.updateJumpButtonVisibility(); // Initialize jump button state
         this.setupWindowFocusHandler();
     }
 
@@ -78,11 +80,12 @@ class UIController {
         });
     }
 
-    // Initialize all event listeners
+        // Initialize all event listeners
     initializeEventListeners() {
         // Main functionality
         this.elements.clearBtn.addEventListener('click', () => this.handleClearInput());
         this.elements.pasteBtn.addEventListener('click', () => this.handlePasteFromClipboard());
+        this.elements.jumpBtn.addEventListener('click', () => this.handleJumpToUrl());
         this.elements.githubBtn.addEventListener('click', () => this.handleGitHubClick());
         this.elements.settingsBtn.addEventListener('click', () => this.openSettings());
         this.elements.themeBtn.addEventListener('click', () => this.handleThemeToggle());
@@ -98,12 +101,14 @@ class UIController {
         // Auto-search on input with debounce
         this.elements.urlInput.addEventListener('input', () => {
             this.updateClearButtonVisibility();
+            this.updateJumpButtonVisibility();
             this.scheduleAutoSearch();
         });
         
         this.elements.urlInput.addEventListener('paste', () => {
             setTimeout(() => {
                 this.updateClearButtonVisibility();
+                this.updateJumpButtonVisibility();
                 this.scheduleAutoSearch();
             }, 100);
         });
@@ -170,13 +175,35 @@ class UIController {
         this.elements.urlInput.value = '';
         this.elements.urlInput.focus();
         this.updateClearButtonVisibility();
+        this.updateJumpButtonVisibility();
         this.handleAnalyzeUrl(); // This will clear results and remove search-active class
+    }
+
+    // Handle jump to URL button
+    handleJumpToUrl() {
+        const inputUrl = this.elements.urlInput.value.trim();
+        if (inputUrl) {
+            const normalizedUrl = normalizeUrl(inputUrl);
+            if (this.isValidUrl(normalizedUrl)) {
+                // Open URL in new tab
+                window.open(normalizedUrl, '_blank', 'noopener,noreferrer');
+            } else {
+                this.showStatus('Please enter a valid URL', 'error');
+            }
+        }
     }
 
     // Update clear button visibility based on input content
     updateClearButtonVisibility() {
         const hasContent = this.elements.urlInput.value.trim().length > 0;
         this.elements.clearBtn.style.display = hasContent ? 'block' : 'none';
+    }
+
+    // Update jump button visibility based on input content
+    updateJumpButtonVisibility() {
+        const inputUrl = this.elements.urlInput.value.trim();
+        const hasValidUrl = inputUrl && this.isValidUrl(normalizeUrl(inputUrl));
+        this.elements.jumpBtn.style.display = hasValidUrl ? 'block' : 'none';
     }
 
     // Handle URL analysis
@@ -536,6 +563,7 @@ class UIController {
             if (text.trim()) {
                 this.elements.urlInput.value = text.trim();
                 this.updateClearButtonVisibility();
+                this.updateJumpButtonVisibility();
                 // Clear any pending timer and trigger immediate analysis
                 this.clearSearchTimer();
                 this.handleAnalyzeUrl();
@@ -548,7 +576,30 @@ class UIController {
 
     // Handle GitHub button click
     handleGitHubClick() {
-        window.open('https://github.com/sc-hua/LinkJump', '_blank', 'noopener,noreferrer');
+        this.elements.urlInput.value = 'https://github.com/sc-hua/LinkJump';
+        this.updateClearButtonVisibility();
+        this.updateJumpButtonVisibility();
+        this.clearSearchTimer();
+        this.handleAnalyzeUrl();
+    }
+
+    // Handle jump to URL
+    handleJumpToUrl() {
+        const inputUrl = this.elements.urlInput.value.trim();
+        if (!inputUrl) {
+            this.showStatus('Please enter a URL first', 'error');
+            return;
+        }
+
+        const normalizedUrl = normalizeUrl(inputUrl);
+        if (!this.isValidUrl(normalizedUrl)) {
+            this.showStatus('Please enter a valid URL', 'error');
+            return;
+        }
+
+        // Open URL in new tab
+        window.open(normalizedUrl, '_blank', 'noopener,noreferrer');
+        this.showStatus('Opened in new tab', 'success');
     }
 
     // Handle theme toggle

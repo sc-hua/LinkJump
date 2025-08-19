@@ -150,7 +150,7 @@ header p {
 #urlInput {
     width: 100%;
     min-width: 280px;
-    padding: 1rem 6.5rem 1rem 1rem; /* Right padding for clear + paste buttons */
+    padding: 1rem 6.5rem 1rem 2.5rem; /* Left padding for jump button, right padding for clear + paste buttons */
     font-size: 16px;
     border: 2px solid var(--border-color);
     border-radius: 12px;
@@ -227,6 +227,38 @@ header p {
     cursor: not-allowed;
 }
 
+/* Jump button inside input */
+.jump-btn {
+    position: absolute;
+    left: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 0.5rem 0.2rem;
+    font-size: 12px;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    background-color: var(--hover-bg);
+    color: var(--hover-text);
+    cursor: pointer;
+    transition: all 0.5s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    /* gap: 0.3rem; */
+}
+
+.jump-btn:hover {
+    background-color: var(--success-color);
+    color: white;
+    transform: translateY(-50%) scale(1.05);
+}
+
+.jump-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 .action-btn {
     padding: 0.75rem;
     font-size: 18px;
@@ -251,7 +283,8 @@ header p {
 .btn-icon,
 .action-btn > *,
 .clear-btn > *,
-.paste-btn > * {
+.paste-btn > *,
+.jump-btn > * {
     width: 18px;
     height: 18px;
     display: inline-flex;
@@ -265,7 +298,8 @@ header p {
 .btn-icon img,
 .action-btn img,
 .clear-btn img,
-.paste-btn img {
+.paste-btn img,
+.jump-btn img {
     filter: brightness(0) saturate(100%);
 }
 
@@ -273,7 +307,8 @@ header p {
 .btn-icon svg,
 .action-btn svg,
 .clear-btn svg,
-.paste-btn svg {
+.paste-btn svg,
+.jump-btn svg {
     fill: var(--text-primary);
 }
 
@@ -281,7 +316,8 @@ header p {
 .btn-icon span,
 .action-btn span,
 .clear-btn span,
-.paste-btn span {
+.paste-btn span,
+.jump-btn span {
     font-size: 18px;
     line-height: 1;
     text-align: center;
@@ -291,26 +327,30 @@ header p {
 /* Hover states - unified */
 .action-btn:hover img,
 .clear-btn:hover img,
-.paste-btn:hover img {
+.paste-btn:hover img,
+.jump-btn:hover img {
     filter: brightness(0) saturate(100%) invert(100%);
 }
 
 .action-btn:hover svg,
 .clear-btn:hover svg,
-.paste-btn:hover svg {
+.paste-btn:hover svg,
+.jump-btn:hover svg {
     fill: var(--hover-text);
 }
 
 /* Theme-specific icon adjustments - unified */
 [data-theme="dark"] .action-btn img,
 [data-theme="dark"] .clear-btn img,
-[data-theme="dark"] .paste-btn img {
+[data-theme="dark"] .paste-btn img,
+[data-theme="dark"] .jump-btn img {
     filter: brightness(0) saturate(100%) invert(80%);
 }
 
 [data-theme="dark"] .action-btn:hover img,
 [data-theme="dark"] .clear-btn:hover img,
-[data-theme="dark"] .paste-btn:hover img {
+[data-theme="dark"] .paste-btn:hover img,
+[data-theme="dark"] .jump-btn:hover img {
     filter: brightness(0) saturate(100%) invert(100%);
 }
 
@@ -318,13 +358,15 @@ header p {
 @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) .action-btn img,
     :root:not([data-theme="light"]) .clear-btn img,
-    :root:not([data-theme="light"]) .paste-btn img {
+    :root:not([data-theme="light"]) .paste-btn img,
+    :root:not([data-theme="light"]) .jump-btn img {
         filter: brightness(0) saturate(100%) invert(80%);
     }
     
     :root:not([data-theme="light"]) .action-btn:hover img,
     :root:not([data-theme="light"]) .clear-btn:hover img,
-    :root:not([data-theme="light"]) .paste-btn:hover img {
+    :root:not([data-theme="light"]) .paste-btn:hover img,
+    :root:not([data-theme="light"]) .jump-btn:hover img {
         filter: brightness(0) saturate(100%) invert(100%);
     }
 }
@@ -626,7 +668,7 @@ header p {
 
     #urlInput {
         min-width: unset;
-        padding: 1rem 5rem 1rem 1rem; /* Clear + paste button space */
+        padding: 1rem 5rem 1rem 2.5rem; /* Left padding for jump button, right padding for clear + paste buttons */
         font-size: 15px;
     }
 
