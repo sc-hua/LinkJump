@@ -101,6 +101,7 @@ body.search-active .container {
 
 header {
     text-align: center;
+    margin-top: 1rem;
     margin-bottom: 3rem;
     transition: all 0.5s ease;
 }
@@ -135,7 +136,7 @@ header p {
     flex-direction: column;
     align-items: center;
     gap: 1.5rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
     transition: all 0.5s ease; /* Smooth transition for search area */
 }
 
@@ -331,7 +332,7 @@ header p {
 /* Status */
 .status {
     text-align: center;
-    margin: 1rem 0;
+    margin: 0.5rem 0;
     font-weight: 500;
     min-height: 24px;
 }
@@ -504,7 +505,8 @@ header p {
     font-weight: 500;
 }
 
-.form-group input, .form-group textarea {
+.form-group input, 
+.form-group textarea {
     width: 100%;
     padding: 0.75rem;
     border: 1px solid var(--border-color);
@@ -514,7 +516,8 @@ header p {
     font-size: 14px;
 }
 
-.form-group input:focus, .form-group textarea:focus {
+.form-group input:focus, 
+.form-group textarea:focus {
     outline: none;
     border-color: var(--hover-bg);
     box-shadow: 0 0 0 2px rgba(159, 161, 161, 0.1);
@@ -603,18 +606,32 @@ header p {
         margin-top: 10%;
         padding: 1.5rem 1rem;
     }
-    
+
+    header {
+        margin-bottom: 2.5rem;
+    }
     header h1 { 
+        margin: 1rem auto;
         font-size: 2.5rem; 
+    }
+    header p {
+        font-size: 1.2rem;
     }
     .search-active header h1 { 
         font-size: 1.75rem; 
+    }
+    .search-active header p {
+        font-size: 1rem;
     }
 
     #urlInput {
         min-width: unset;
         padding: 1rem 5rem 1rem 1rem; /* Clear + paste button space */
-        font-size: 14px;
+        font-size: 15px;
+    }
+
+    .search-input-container {
+        width: 92%;
     }
     
     .link-buttons { 
@@ -648,13 +665,22 @@ header p {
     header h1 { 
         font-size: 2rem; 
     }
-    
+    header p {
+        font-size: 1rem;
+    }
     .search-active header h1 { 
         font-size: 1.5rem; 
     }
+    .search-active header p {
+        font-size: 0.8rem;
+    }
 
     #urlInput { 
-        font-size: 12px; 
+        font-size: 12.5px; 
+    }
+
+    .search-input-container {
+        width: 98%;
     }
 
     .modal-content { 

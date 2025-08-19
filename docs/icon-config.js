@@ -71,4 +71,4 @@ function renderIcon(iconName, className = "btn-icon") {
 }
 
 // for download icons
-module.exports = { ICON_CONFIG };
+// module.exports = { ICON_CONFIG };
