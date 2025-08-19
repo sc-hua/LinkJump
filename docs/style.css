@@ -149,7 +149,7 @@ header p {
 #urlInput {
     width: 100%;
     min-width: 280px;
-    padding: 1rem 3.5rem 1rem 2.5rem; /* Left padding for loader, right for paste button */
+    padding: 1rem 6.5rem 1rem 2.5rem; /* Left padding for loader, right for clear + paste buttons */
     font-size: 16px;
     border: 2px solid var(--border-color);
     border-radius: 12px;
@@ -183,6 +183,32 @@ header p {
 @keyframes pulse {
     0%, 100% { opacity: 0.7; }
     50% { opacity: 1; }
+}
+
+/* Clear button inside input */
+.clear-btn {
+    position: absolute;
+    right: 3rem; /* Position between input and paste button */
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 0.5rem;
+    font-size: 14px;
+    border: none;
+    border-radius: 8px;
+    background-color: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.5s ease;
+}
+
+.clear-btn:hover {
+    background-color: var(--error-color);
+    color: white;
+}
+
+.clear-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 /* Paste button inside input */
@@ -536,6 +562,8 @@ header p {
     #urlInput {
         min-width: unset;
         width: 100%;
+        padding: 1rem 5rem 1rem 2rem; /* Maintain same padding for clear + paste buttons */
+        font-size: 14px;
     }
     
     .link-buttons {
@@ -573,9 +601,20 @@ header p {
     header h1 {
         font-size: 2rem;
     }
+
+    header p {
+        font-size: 1rem;
+    }
     
     .search-active header h1 {
         font-size: 1.5rem;
+    }
+
+    #urlInput {
+        min-width: unset;
+        width: 100%;
+        padding: 1rem 5rem 1rem 2rem; /* Maintain same padding for clear + paste buttons */
+        font-size: 12px;
     }
     
     .modal-content {

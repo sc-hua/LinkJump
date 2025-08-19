@@ -61,7 +61,8 @@ class ConfigManager {
         
         const link = document.createElement('a');
         link.href = URL.createObjectURL(dataBlob);
-        link.download = `${this.configFileName.replace('.json', '')}-${new Date().toISOString().slice(0, 10)}.json`;
+        const currentDateTime = new Date().toISOString().slice(0, 19).replace('T', '_').replace(/:/g, '-');
+        link.download = `${this.configFileName.replace('.json', '')}_${currentDateTime}.json`;
         link.click();
         
         URL.revokeObjectURL(link.href);

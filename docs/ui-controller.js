@@ -12,6 +12,7 @@ class UIController {
         this.elements = {
             urlInput: document.getElementById('urlInput'),
             searchLoader: document.getElementById('searchLoader'),
+            clearBtn: document.getElementById('clearBtn'),
             pasteBtn: document.getElementById('pasteBtn'),
             settingsBtn: document.getElementById('settingsBtn'),
             themeBtn: document.getElementById('themeBtn'),
@@ -24,12 +25,35 @@ class UIController {
 
         this.initializeEventListeners();
         this.updateThemeButton();
-        this.autoFocusSearchBox();
+        this.updateClearButtonVisibility(); // Initialize clear button state
+        this.setupWindowFocusHandler();
     }
 
-    // Auto focus search box on page load
-    autoFocusSearchBox() {
-        // Delay to ensure DOM is fully rendered
+    // Auto focus search box when window gains focus
+    setupWindowFocusHandler() {
+        // Focus when window/tab becomes active
+        window.addEventListener('focus', () => {
+            // Small delay to ensure the window is fully focused
+            setTimeout(() => {
+                if (!this.elements.modal.style.display || this.elements.modal.style.display === 'none') {
+                    // Only focus if modal is not open
+                    this.elements.urlInput.focus();
+                }
+            }, 50);
+        });
+        
+        // Also focus on page visibility change (when tab becomes visible)
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                setTimeout(() => {
+                    if (!this.elements.modal.style.display || this.elements.modal.style.display === 'none') {
+                        this.elements.urlInput.focus();
+                    }
+                }, 50);
+            }
+        });
+        
+        // Initial focus on page load
         setTimeout(() => {
             this.elements.urlInput.focus();
         }, 100);
@@ -38,6 +62,7 @@ class UIController {
     // Initialize all event listeners
     initializeEventListeners() {
         // Main functionality
+        this.elements.clearBtn.addEventListener('click', () => this.handleClearInput());
         this.elements.pasteBtn.addEventListener('click', () => this.handlePasteFromClipboard());
         this.elements.settingsBtn.addEventListener('click', () => this.openSettings());
         this.elements.themeBtn.addEventListener('click', () => this.handleThemeToggle());
@@ -52,17 +77,28 @@ class UIController {
         
         // Auto-search on input with debounce
         this.elements.urlInput.addEventListener('input', () => {
+            this.updateClearButtonVisibility();
             this.scheduleAutoSearch();
         });
         
         this.elements.urlInput.addEventListener('paste', () => {
-            setTimeout(() => this.scheduleAutoSearch(), 100);
+            setTimeout(() => {
+                this.updateClearButtonVisibility();
+                this.scheduleAutoSearch();
+            }, 100);
         });
 
         // Modal handlers
         this.elements.closeModal.addEventListener('click', () => this.closeSettings());
         this.elements.modal.addEventListener('click', (e) => {
             if (e.target === this.elements.modal) this.closeSettings();
+        });
+
+        // ESC key to close modal
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && this.elements.modal.style.display === 'block') {
+                this.closeSettings();
+            }
         });
 
         // Form handlers
@@ -107,6 +143,20 @@ class UIController {
             clearTimeout(this.searchTimer);
             this.searchTimer = null;
         }
+    }
+
+    // Handle clear input button
+    handleClearInput() {
+        this.elements.urlInput.value = '';
+        this.elements.urlInput.focus();
+        this.updateClearButtonVisibility();
+        this.handleAnalyzeUrl(); // This will clear results and remove search-active class
+    }
+
+    // Update clear button visibility based on input content
+    updateClearButtonVisibility() {
+        const hasContent = this.elements.urlInput.value.trim().length > 0;
+        this.elements.clearBtn.style.display = hasContent ? 'block' : 'none';
     }
 
     // Show/hide search loader
@@ -284,6 +334,10 @@ class UIController {
     closeSettings() {
         this.elements.modal.style.display = 'none';
         this.clearModalInputs();
+        // Focus back to search box when closing settings
+        setTimeout(() => {
+            this.elements.urlInput.focus();
+        }, 100);
     }
 
     // Clear all modal input fields
@@ -470,6 +524,7 @@ class UIController {
             const text = await navigator.clipboard.readText();
             if (text.trim()) {
                 this.elements.urlInput.value = text.trim();
+                this.updateClearButtonVisibility();
                 // Clear any pending timer and trigger immediate analysis
                 this.clearSearchTimer();
                 this.handleAnalyzeUrl();

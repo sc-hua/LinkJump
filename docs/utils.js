@@ -97,10 +97,7 @@ const mirrors_map = {
 
 function remove_prefix(url, prefixes) {
   // Normalize URL - add https:// if no protocol specified
-  if (!url.includes('://')) {
-    url = 'https://' + url;
-  }
-  
+  url = normalizeUrl(url);
   for (const prefix of prefixes) {
     if (url.startsWith(prefix)) {
       url = url.replace(prefix, '');
@@ -111,14 +108,9 @@ function remove_prefix(url, prefixes) {
 }
 
 function extractPaperId(url) {
-  // Normalize URL first
-  if (!url.includes('://')) {
-    url = 'https://' + url;
-  }
-  
-  // Remove any arXiv prefix (abs, pdf, etc.)
+  url = normalizeUrl(url);
+  // Remove any arXiv prefix (abs, pdf, etc.), easier to extract paper ID
   url = remove_prefix(url, redirectors_map.arxiv.map(site => site.prefix));
-  
   // Extract paper ID from URL path - handle different formats
   let match = url.match(/[0-9]{4}\.[0-9]{4,5}(v\d+)?/);
   if (!match) {
@@ -128,27 +120,18 @@ function extractPaperId(url) {
       match = [pathMatch[1]];
     }
   }
-  
   return match ? match[0] : null;
 }
 
 function extractGithubRepo(url) {
-  // Normalize URL first
-  if (!url.includes('://')) {
-    url = 'https://' + url;
-  }
-  
+  url = normalizeUrl(url);
   url = remove_prefix(url, redirectors_map.github.map(site => site.prefix));
   const match = url.match(/([^\/]+)\/([^\/?#]+)/);
   return match ? `${match[1]}/${match[2]}` : null;
 }
 
 function detectPageType(url) {
-  // Normalize URL first
-  if (!url.includes('://')) {
-    url = 'https://' + url;
-  }
-  
+  url = normalizeUrl(url);
   for (const [type, sites] of Object.entries(redirectors_map)) {
     if (sites.some(site => url.startsWith(site.prefix))) {
       return type;
