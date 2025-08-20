@@ -1,16 +1,19 @@
 # LinkJump Web Interface
 
+EN | [中文](./README_ZH.md)
+
 A standalone web interface for the URL redirector functionality, allowing users to input URLs and discover alternative links with custom rules support.
 
 ## Features
 
-- 🔗 **URL Analysis**: Input any supported URL and get alternative links
+- 🔗 **URL Analysis**: Input any supported URL and get alternative links instantly
 - ⚙️ **Custom Rules**: Add your own redirector patterns and mirror sites
 - 💾 **Persistent Storage**: Custom rules are saved locally in your browser
 - 📥📤 **Import/Export**: Backup and share your custom rules as JSON files
-- 🎨 **Clean Design**: Simple, responsive interface with dark/light theme support
-- ⚡ **Instant Results**: Real-time analysis of URLs without page refresh
-- 🚀 **GitHub Pages Ready**: Can be easily deployed to GitHub Pages
+- 🎨 **Theme Support**: Clean, responsive interface with automatic dark/light theme
+- ⚡ **Real-time Processing**: Instant URL analysis without page refresh
+- 🌐 **Cross-platform**: Works on any modern web browser
+- 🚀 **Easy Deployment**: Can be deployed to GitHub Pages or any static hosting
 
 ## Supported URLs
 
@@ -27,10 +30,10 @@ A standalone web interface for the URL redirector functionality, allowing users 
 ## Usage
 
 ### Basic Usage
-1. Open `web/index.html` in a web browser
+1. Open the web interface (e.g., `docs/index.html`) in a web browser
 2. Enter a URL in the input field
 3. Click "Analyze" or press Enter
-4. View and click on the alternative links
+4. View and click on the alternative links generated
 
 ### Custom Rules Management
 1. Click the settings button (⚙️) to open the rules manager
@@ -62,13 +65,15 @@ A standalone web interface for the URL redirector functionality, allowing users 
 - Display Name: `To Fast Mirror`
 
 ### GitHub Pages Deployment
-1. Push the `web/` folder contents to your GitHub Pages repository
-2. Access via `https://username.github.io/repository-name/`
+1. Push the `docs/` folder contents to your GitHub Pages repository
+2. Enable GitHub Pages in repository settings
+3. Access via `https://username.github.io/repository-name/`
+4. The interface will be immediately available with all functionality
 
 ## File Structure
 
 ```
-web/
+docs/
 ├── index.html          # Main HTML page with settings modal
 ├── style.css           # Styling with dark/light theme and modal support
 ├── utils.js            # Core URL processing utilities
@@ -76,6 +81,9 @@ web/
 ├── rules-engine.js     # URL analysis and redirector logic engine
 ├── ui-controller.js    # UI interactions and DOM management
 ├── app.js              # Main application coordinator
+├── theme-manager.js    # Theme management and system preference detection
+├── icon-config.js      # Icon configuration and management
+├── icon-download.js    # Icon download functionality
 └── README.md           # This documentation
 ```
 
@@ -145,3 +153,9 @@ Custom rules are exported/imported in JSON format:
 - LocalStorage support for caching
 - Responsive design for mobile and desktop
 - Dark/light theme based on system preference
+
+---
+
+<div align="center">
+  If this project helps you or inspires you, please give us a ⭐️
+</div>

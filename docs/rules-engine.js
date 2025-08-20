@@ -189,4 +189,26 @@ class RulesEngine {
             mirrors: config.customMirrors
         };
     }
+
+    // Get all builtin rules for display
+    getAllBuiltinRules() {
+        return {
+            redirectors: this.builtinRedirectors,
+            mirrors: this.builtinMirrors
+        };
+    }
+
+    // Toggle builtin rules visibility
+    toggleBuiltinRulesVisibility() {
+        const config = this.configManager.getConfig();
+        const newValue = !config.showBuiltinRules;
+        this.configManager.updateConfig({ showBuiltinRules: newValue });
+        return newValue;
+    }
+
+    // Get builtin rules visibility state
+    getBuiltinRulesVisibility() {
+        const config = this.configManager.getConfig();
+        return config.showBuiltinRules || false;
+    }
 }

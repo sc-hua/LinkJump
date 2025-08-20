@@ -5,6 +5,7 @@ class ConfigManager {
         this.defaultConfig = {
             customRedirectors: {},
             customMirrors: {},
+            showBuiltinRules: false,  // Hidden by default
             version: '1.0',
             lastModified: new Date().toISOString()
         };

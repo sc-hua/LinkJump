@@ -54,3 +54,11 @@ The Chrome extension's `background.js` file is not referenced in the manifest an
 ## Resources
 
 - Mozilla WebExtension development tutorials (Firefox). ([ZH](https://developer.mozilla.org/zh-CN/docs/Mozilla/Add-ons/WebExtensions), [EN](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions))
+
+
+<br><br>
+
+---
+<div align="center">
+  If this project helps you or inspires you, please give us a ⭐️
+</div>

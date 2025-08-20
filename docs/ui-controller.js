@@ -25,7 +25,8 @@ class UIController {
             results: document.getElementById('results'),
             modal: document.getElementById('settingsModal'),
             closeModal: document.getElementById('closeModal'),
-            currentRules: document.getElementById('currentRules')
+            currentRules: document.getElementById('currentRules'),
+            toggleBuiltinRules: document.getElementById('toggleBuiltinRules')
         };
 
         this.initializeEventListeners();
@@ -114,6 +115,10 @@ class UIController {
 
         // Form handlers
         this.initializeFormHandlers();
+        
+        // Toggle builtin rules handler
+        this.elements.toggleBuiltinRules.addEventListener('click', () => 
+            this.handleToggleBuiltinRules());
         
         // Check clipboard API support
         this.checkClipboardSupport();
@@ -351,9 +356,25 @@ class UIController {
         return confirm(message);
     }
 
+    // Handle toggle builtin rules visibility
+    handleToggleBuiltinRules() {
+        const isVisible = this.rulesEngine.toggleBuiltinRulesVisibility();
+        this.updateToggleButton(isVisible);
+        this.refreshRulesList();
+    }
+
+    // Update toggle button text based on state
+    updateToggleButton(isVisible) {
+        this.elements.toggleBuiltinRules.textContent = 
+            isVisible ? 'Hide Built-in Rules' : 'Show Built-in Rules';
+    }
+
     // Settings modal methods
     openSettings() {
         this.elements.modal.style.display = 'block';
+        // Update toggle button state
+        const isVisible = this.rulesEngine.getBuiltinRulesVisibility();
+        this.updateToggleButton(isVisible);
         this.refreshRulesList();
     }
 
@@ -465,42 +486,107 @@ class UIController {
         const container = this.elements.currentRules;
         container.innerHTML = '';
 
-        const rules = this.rulesEngine.getAllCustomRules();
+        const customRules = this.rulesEngine.getAllCustomRules();
+        const showBuiltin = this.rulesEngine.getBuiltinRulesVisibility();
+        const builtinRules = showBuiltin ? this.rulesEngine.getAllBuiltinRules() : { redirectors: {}, mirrors: {} };
+        
         let hasRules = false;
 
-        // Display custom redirectors
-        for (const [type, redirectors] of Object.entries(rules.redirectors)) {
-            redirectors.forEach((redirector, index) => {
-                container.appendChild(this.createRuleItem(
-                    `${redirector.name} (${type})`,
-                    [`Prefix: ${redirector.prefix}`, `Template: ${redirector.template}`],
-                    () => this.deleteRedirector(type, index)
-                ));
-                hasRules = true;
-            });
+        // Display custom redirectors first
+        if (Object.keys(customRules.redirectors).length > 0) {
+            const customHeader = document.createElement('h4');
+            customHeader.textContent = 'Custom Redirectors';
+            customHeader.className = 'rules-section-header';
+            container.appendChild(customHeader);
+
+            for (const [type, redirectors] of Object.entries(customRules.redirectors)) {
+                redirectors.forEach((redirector, index) => {
+                    container.appendChild(this.createRuleItem(
+                        `${redirector.name} (${type})`,
+                        [`Prefix: ${redirector.prefix}`, `Template: ${redirector.template}`],
+                        () => this.deleteRedirector(type, index),
+                        true // is custom rule
+                    ));
+                    hasRules = true;
+                });
+            }
         }
 
         // Display custom mirrors
-        for (const [originalUrl, mirrors] of Object.entries(rules.mirrors)) {
-            mirrors.forEach((mirror, index) => {
-                container.appendChild(this.createRuleItem(
-                    mirror.hover,
-                    [`From: ${originalUrl}`, `To: ${mirror.mirror}`],
-                    () => this.deleteMirror(originalUrl, index)
-                ));
-                hasRules = true;
-            });
+        if (Object.keys(customRules.mirrors).length > 0) {
+            const customMirrorHeader = document.createElement('h4');
+            customMirrorHeader.textContent = 'Custom Mirrors';
+            customMirrorHeader.className = 'rules-section-header';
+            container.appendChild(customMirrorHeader);
+
+            for (const [originalUrl, mirrors] of Object.entries(customRules.mirrors)) {
+                mirrors.forEach((mirror, index) => {
+                    container.appendChild(this.createRuleItem(
+                        mirror.hover,
+                        [`From: ${originalUrl}`, `To: ${mirror.mirror}`],
+                        () => this.deleteMirror(originalUrl, index),
+                        true // is custom rule
+                    ));
+                    hasRules = true;
+                });
+            }
+        }
+
+        // Display builtin redirectors if enabled
+        if (showBuiltin && Object.keys(builtinRules.redirectors).length > 0) {
+            if (hasRules) {
+                const divider = document.createElement('hr');
+                divider.className = 'rules-divider';
+                container.appendChild(divider);
+            }
+
+            const builtinHeader = document.createElement('h4');
+            builtinHeader.textContent = 'Built-in Redirectors';
+            builtinHeader.className = 'rules-section-header builtin-header';
+            container.appendChild(builtinHeader);
+
+            for (const [type, redirectors] of Object.entries(builtinRules.redirectors)) {
+                redirectors.forEach((redirector) => {
+                    container.appendChild(this.createRuleItem(
+                        `${redirector.name} (${type})`,
+                        [`Prefix: ${redirector.prefix}`, `Target: ${redirector.hover}`],
+                        null, // no delete function for builtin
+                        false // is not custom rule
+                    ));
+                    hasRules = true;
+                });
+            }
+        }
+
+        // Display builtin mirrors if enabled
+        if (showBuiltin && Object.keys(builtinRules.mirrors).length > 0) {
+            const builtinMirrorHeader = document.createElement('h4');
+            builtinMirrorHeader.textContent = 'Built-in Mirrors';
+            builtinMirrorHeader.className = 'rules-section-header builtin-header';
+            container.appendChild(builtinMirrorHeader);
+
+            for (const [originalUrl, mirrors] of Object.entries(builtinRules.mirrors)) {
+                mirrors.forEach((mirror) => {
+                    container.appendChild(this.createRuleItem(
+                        mirror.hover,
+                        [`From: ${originalUrl}`, `To: ${mirror.mirror}`],
+                        null, // no delete function for builtin
+                        false // is not custom rule
+                    ));
+                    hasRules = true;
+                });
+            }
         }
 
         if (!hasRules) {
-            container.innerHTML = '<p style="text-align: center; color: var(--text-secondary); font-style: italic;">No custom rules defined yet.</p>';
+            container.innerHTML = '<p style="text-align: center; color: var(--text-secondary); font-style: italic;">No rules to display.</p>';
         }
     }
 
     // Create a rule item element
-    createRuleItem(title, details, onDelete) {
+    createRuleItem(title, details, onDelete, isCustom = true) {
         const ruleItem = document.createElement('div');
-        ruleItem.className = 'rule-item';
+        ruleItem.className = `rule-item ${isCustom ? 'custom-rule' : 'builtin-rule'}`;
         
         const ruleInfo = document.createElement('div');
         ruleInfo.className = 'rule-info';
@@ -515,13 +601,16 @@ class UIController {
             ruleInfo.appendChild(smallElement);
         });
         
-        const deleteButton = document.createElement('button');
-        deleteButton.className = 'delete-rule';
-        deleteButton.textContent = 'Delete';
-        deleteButton.addEventListener('click', onDelete);
-        
         ruleItem.appendChild(ruleInfo);
-        ruleItem.appendChild(deleteButton);
+
+        // Only add delete button for custom rules
+        if (isCustom && onDelete) {
+            const deleteButton = document.createElement('button');
+            deleteButton.className = 'delete-rule';
+            deleteButton.textContent = 'Delete';
+            deleteButton.addEventListener('click', onDelete);
+            ruleItem.appendChild(deleteButton);
+        }
         
         return ruleItem;
     }
