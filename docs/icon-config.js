@@ -1,14 +1,15 @@
 // Icon configuration - centralized icon management
 const ICON_CONFIG = {
     // Icon sources - switch between different icon sets
-    // urls, local svg, emoji, text, svg raw path, ...
+    // urls, local svg, emoji, text, ...
     sources: {
-        // Local SVG files - correct path from docs folder
+        // Local SVG files
+        // must under /docs to fit github page
         local: {
             github: "./icons/web/github.svg",
             settings: "./icons/web/settings.svg", 
             auto: "./icons/web/auto.svg",
-            light: "./icons/web/light.svg",
+            light: "./icons/web/lightttt.svg",
             dark: "./icons/web/dark.svg",
             clear: "./icons/web/clear.svg",
             paste: "./icons/web/paste.svg",
@@ -39,13 +40,12 @@ const ICON_CONFIG = {
             link: "🔗"
         }
     }
-    
-    // Fallback priority: local -> url -> emoji (automatic cascading)
 };
 
-// Icon renderer - handles different icon types with fallback strategy
+// Fallback priority: local -> url -> emoji (automatic cascading)
+// Icon renderer - efficient lazy-loading with cascading fallback
 function renderIcon(iconName, className = "btn-icon") {
-    // Try local first, then URL, then emoji as fallback
+    // Get available icon sources
     const localIcon = ICON_CONFIG.sources.local[iconName];
     const urlIcon = ICON_CONFIG.sources.tabler_svg_urls[iconName];
     const emojiIcon = ICON_CONFIG.sources.emoji[iconName];
@@ -55,30 +55,51 @@ function renderIcon(iconName, className = "btn-icon") {
         return `<span class="${className}">${iconName}</span>`;
     }
     
-    // Build cascading fallback HTML
-    let html = '';
+    // Create a container that will handle lazy loading
+    const containerId = `icon-${iconName}-${Math.random().toString(36).substr(2, 9)}`;
     
-    // Primary: Local file (if available)
+    // Start with the first available source
+    let html = `<div class="icon-maintainer" data-icon-name="${iconName}" data-class="${className}" id="${containerId}">`;
+    
     if (localIcon) {
+        // Load local icon first
         html += `<img src="${localIcon}" alt="${iconName}" class="${className}" 
-                     onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">`;
-    }
-    
-    // Secondary: URL icon (if available and local failed)
-    if (urlIcon) {
-        const displayStyle = localIcon ? 'display:none;' : '';
+                     onerror="loadNextIcon('${containerId}', 'url')">`;
+    } else if (urlIcon) {
+        // If no local, try URL directly
         html += `<img src="${urlIcon}" alt="${iconName}" class="${className}" 
-                     style="${displayStyle}" 
-                     onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">`;
+                     onerror="loadNextIcon('${containerId}', 'emoji')">`;
+    } else {
+        // Fallback to emoji
+        html += `<span class="${className}">${emojiIcon}</span>`;
     }
     
-    // Tertiary: Emoji fallback (always available)
-    if (emojiIcon) {
-        const displayStyle = (localIcon || urlIcon) ? 'display:none;' : '';
-        html += `<span class="${className}" style="${displayStyle}">${emojiIcon}</span>`;
-    }
-    
+    html += '</div>';
     return html;
+}
+
+// Lazy load next icon source when current fails
+function loadNextIcon(containerId, nextSource) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    
+    const iconName = container.getAttribute('data-icon-name');
+    const className = container.getAttribute('data-class');
+    
+    const urlIcon = ICON_CONFIG.sources.tabler_svg_urls[iconName];
+    const emojiIcon = ICON_CONFIG.sources.emoji[iconName];
+
+    if (nextSource === 'url' && urlIcon) {
+        // Try URL source
+        container.innerHTML = `<img src="${urlIcon}" alt="${iconName}" class="${className}" 
+                               onerror="loadNextIcon('${containerId}', 'emoji')">`;
+    } else if (nextSource === 'emoji' && emojiIcon) {
+        // Fallback to emoji (no further fallback needed)
+        container.innerHTML = `<span class="${className}">${emojiIcon}</span>`;
+    } else {
+        // Last resort: show icon name
+        container.innerHTML = `<span class="${className}">${iconName}</span>`;
+    }
 }
 
 // for download icons

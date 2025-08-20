@@ -234,11 +234,9 @@ header p {
     top: 50%;
     transform: translateY(-50%);
     padding: 0.5rem 0.2rem;
-    font-size: 12px;
-    font-weight: 600;
     border: none;
     border-radius: 8px;
-    background-color: var(--hover-bg);
+    background-color: transparent;
     color: var(--hover-text);
     cursor: pointer;
     display: inline-flex;
@@ -248,7 +246,7 @@ header p {
 
 .jump-btn:hover {
     background-color: var(--success-color);
-    /* color: white; */
+    color: white;
 }
 
 .jump-btn:disabled {
@@ -291,79 +289,58 @@ header p {
     transition: all 0.3s ease;
 }
 
+/* Icon container - maintains layout during lazy loading */
+.icon-maintainer {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+}
+
 /* Image icons - unified filter */
-.btn-icon img,
-.action-btn img,
-.clear-btn img,
-.paste-btn img,
-.jump-btn img {
+.icon-maintainer img {
     filter: brightness(0) saturate(100%);
 }
 
 /* SVG icons - unified fill */
-.btn-icon svg,
-.action-btn svg,
-.clear-btn svg,
-.paste-btn svg,
-.jump-btn svg {
+.icon-maintainer svg {
     fill: var(--text-primary);
 }
 
 /* Text/emoji icons */
-.btn-icon span,
-.action-btn span,
-.clear-btn span,
-.paste-btn span,
-.jump-btn span {
-    font-size: 18px;
+.icon-maintainer span {
+    font-size: 16px;
     line-height: 1;
     text-align: center;
-    transform: translateX(-0.125rem);
+    /* transform: translateX(-0.125rem); */
 }
 
 /* Hover states - unified */
-.action-btn:hover img,
-.clear-btn:hover img,
-.paste-btn:hover img,
-.jump-btn:hover img {
+.icon-maintainer:hover img {
     filter: brightness(0) saturate(100%) invert(100%);
 }
 
-.action-btn:hover svg,
-.clear-btn:hover svg,
-.paste-btn:hover svg,
-.jump-btn:hover svg {
+.icon-maintainer:hover svg {
     fill: var(--hover-text);
 }
 
 /* Theme-specific icon adjustments - unified */
-[data-theme="dark"] .action-btn img,
-[data-theme="dark"] .clear-btn img,
-[data-theme="dark"] .paste-btn img,
-[data-theme="dark"] .jump-btn img {
+[data-theme="dark"] .icon-maintainer img {
     filter: brightness(0) saturate(100%) invert(80%);
 }
 
-[data-theme="dark"] .action-btn:hover img,
-[data-theme="dark"] .clear-btn:hover img,
-[data-theme="dark"] .paste-btn:hover img,
-[data-theme="dark"] .jump-btn:hover img {
+[data-theme="dark"] .icon-maintainer:hover img {
     filter: brightness(0) saturate(100%) invert(100%);
 }
 
 /* Auto theme (system preference) - unified */
 @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) .action-btn img,
-    :root:not([data-theme="light"]) .clear-btn img,
-    :root:not([data-theme="light"]) .paste-btn img,
-    :root:not([data-theme="light"]) .jump-btn img {
+    :root:not([data-theme="light"]) .icon-maintainer img {
         filter: brightness(0) saturate(100%) invert(80%);
     }
     
-    :root:not([data-theme="light"]) .action-btn:hover img,
-    :root:not([data-theme="light"]) .clear-btn:hover img,
-    :root:not([data-theme="light"]) .paste-btn:hover img,
-    :root:not([data-theme="light"]) .jump-btn:hover img {
+    :root:not([data-theme="light"]) .icon-maintainer:hover img {
         filter: brightness(0) saturate(100%) invert(100%);
     }
 }
