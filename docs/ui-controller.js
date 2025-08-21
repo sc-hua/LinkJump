@@ -12,7 +12,7 @@ class UIController {
         // this.enableDelay = true;
         this.enableDelay = false;
 
-        // DOM elements
+        // DOM elements - with existence check
         this.elements = {
             urlInput: document.getElementById('urlInput'),
             clearBtn: document.getElementById('clearBtn'),
@@ -29,6 +29,13 @@ class UIController {
             toggleBuiltinRules: document.getElementById('toggleBuiltinRules')
         };
 
+        // Check for missing elements
+        for (const [key, element] of Object.entries(this.elements)) {
+            if (!element) {
+                console.error(`Missing DOM element: ${key}`);
+            }
+        }
+
         this.initializeEventListeners();
         this.initializeIcons(); // Initialize all button icons first
         this.updateThemeButton(); // Then update theme button title
@@ -38,7 +45,8 @@ class UIController {
 
     // Focus input if modal is not open
     focusInput() {
-        if (!this.elements.modal.style.display || this.elements.modal.style.display === 'none') {
+        if (this.elements.modal && this.elements.urlInput && 
+            (!this.elements.modal.style.display || this.elements.modal.style.display === 'none')) {
             this.elements.urlInput.focus();
         }
     }
@@ -74,41 +82,43 @@ class UIController {
 
         // Initialize all event listeners
     initializeEventListeners() {
-        // Main functionality
-        this.elements.clearBtn.addEventListener('click', () => this.handleClearInput());
-        this.elements.pasteBtn.addEventListener('click', () => this.handlePasteFromClipboard());
-        this.elements.jumpBtn.addEventListener('click', () => this.handleJumpToUrl());
-        this.elements.githubBtn.addEventListener('click', () => this.handleGitHubClick());
-        this.elements.settingsBtn.addEventListener('click', () => this.openSettings());
-        this.elements.themeBtn.addEventListener('click', () => this.handleThemeToggle());
+        // Main functionality - with safety checks
+        if (this.elements.clearBtn) this.elements.clearBtn.addEventListener('click', () => this.handleClearInput());
+        if (this.elements.pasteBtn) this.elements.pasteBtn.addEventListener('click', () => this.handlePasteFromClipboard());
+        if (this.elements.jumpBtn) this.elements.jumpBtn.addEventListener('click', () => this.handleJumpToUrl());
+        if (this.elements.githubBtn) this.elements.githubBtn.addEventListener('click', () => this.handleGitHubClick());
+        if (this.elements.settingsBtn) this.elements.settingsBtn.addEventListener('click', () => this.openSettings());
+        if (this.elements.themeBtn) this.elements.themeBtn.addEventListener('click', () => this.handleThemeToggle());
         
-        // Input handlers
-        this.elements.urlInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                this.handleSearch(true); // Immediate execution
-            }
-        });
-        
-        // Auto-search on input with debounce
-        this.elements.urlInput.addEventListener('input', () => {
-            this.handleSearch();
-        });
-        
-        this.elements.urlInput.addEventListener('paste', () => {
-            setTimeout(() => {
+        // Input handlers - with safety checks
+        if (this.elements.urlInput) {
+            this.elements.urlInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    this.handleSearch(true); // Immediate execution
+                }
+            });
+            
+            // Auto-search on input with debounce
+            this.elements.urlInput.addEventListener('input', () => {
                 this.handleSearch();
-            }, 100);
-        });
+            });
+            
+            this.elements.urlInput.addEventListener('paste', () => {
+                setTimeout(() => {
+                    this.handleSearch();
+                }, 100);
+            });
+        }
 
-        // Modal handlers
-        this.elements.closeModal.addEventListener('click', () => this.closeSettings());
-        this.elements.modal.addEventListener('click', (e) => {
+        // Modal handlers - with safety checks
+        if (this.elements.closeModal) this.elements.closeModal.addEventListener('click', () => this.closeSettings());
+        if (this.elements.modal) this.elements.modal.addEventListener('click', (e) => {
             if (e.target === this.elements.modal) this.closeSettings();
         });
 
         // ESC key to close modal
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && this.elements.modal.style.display === 'block') {
+            if (e.key === 'Escape' && this.elements.modal && this.elements.modal.style.display === 'block') {
                 this.closeSettings();
             }
         });
@@ -116,8 +126,8 @@ class UIController {
         // Form handlers
         this.initializeFormHandlers();
         
-        // Toggle builtin rules handler
-        this.elements.toggleBuiltinRules.addEventListener('click', () => 
+        // Toggle builtin rules handler - with safety check
+        if (this.elements.toggleBuiltinRules) this.elements.toggleBuiltinRules.addEventListener('click', () => 
             this.handleToggleBuiltinRules());
         
         // Check clipboard API support
@@ -147,34 +157,21 @@ class UIController {
 
     // Handle clear input button
     handleClearInput() {
-        this.elements.urlInput.value = '';
+        if (this.elements.urlInput) this.elements.urlInput.value = '';
         this.focusInput();
         this.handleSearch(true); // This will clear results and remove search-active class
-    }
-
-    // Handle jump to URL button
-    handleJumpToUrl() {
-        const inputUrl = this.elements.urlInput.value.trim();
-        if (inputUrl) {
-            const normalizedUrl = normalizeUrl(inputUrl);
-            if (this.isValidUrl(normalizedUrl)) {
-                // Open URL in new tab
-                window.open(normalizedUrl, '_blank', 'noopener,noreferrer');
-            } else {
-                this.showStatus('Please enter a valid URL', 'error');
-            }
-        }
     }
 
     // Handle URL analysis with built-in debounce and button state update
     handleSearch(immediate = false) {
         // Update button states first
-        const inputUrl = this.elements.urlInput.value.trim();
+        const inputUrl = this.elements.urlInput ? this.elements.urlInput.value.trim() : '';
         const hasContent = inputUrl.length > 0;
         const hasValidUrl = hasContent && this.isValidUrl(normalizeUrl(inputUrl));
         
-        this.elements.clearBtn.style.display = hasContent ? 'block' : 'none';
-        this.elements.jumpBtn.style.display = hasValidUrl ? 'block' : 'none';
+        // Safe button display updates
+        if (this.elements.clearBtn) this.elements.clearBtn.style.display = hasContent ? 'block' : 'none';
+        if (this.elements.jumpBtn) this.elements.jumpBtn.style.display = hasValidUrl ? 'block' : 'none';
 
         if (inputUrl) {
             // Add search-active class for layout transition
@@ -182,14 +179,15 @@ class UIController {
         } else {
             // Remove search-active class when input is empty
             document.body.classList.remove('search-active');
-            this.elements.status.textContent = '';
-            this.elements.status.className = 'status';
-            // return;
+            if (this.elements.status) {
+                this.elements.status.textContent = '';
+                this.elements.status.className = 'status';
+            }
         }
 
         // Clear previous results but keep search-active state if there were results
-        this.elements.results.innerHTML = '';
-        this.elements.status.textContent = ''; // Clear status
+        if (this.elements.results) this.elements.results.innerHTML = '';
+        if (this.elements.status) this.elements.status.textContent = ''; // Clear status
 
         if (!hasContent) {
             return;
@@ -279,7 +277,18 @@ class UIController {
         buttonsContainer.className = 'link-buttons';
 
         for (const site of redirectors) {
-            const button = this.createLinkButton(site.name, site.url(identifier), site.hover);
+            // Handle both builtin rules (with url function) and custom rules (with template)
+            let targetUrl;
+            if (typeof site.url === 'function') {
+                targetUrl = site.url(identifier); // Builtin rule
+            } else if (site.template) {
+                targetUrl = site.template.replace('{id}', identifier); // Custom rule
+            } else {
+                console.warn('Invalid redirector format:', site);
+                continue; // Skip invalid entries
+            }
+            
+            const button = this.createLinkButton(site.name, targetUrl, site.hover);
             buttonsContainer.appendChild(button);
         }
 
@@ -632,10 +641,11 @@ class UIController {
     }
 
     // Handle paste from clipboard
+    // Handle paste from clipboard
     async handlePasteFromClipboard() {
         try {
             const text = await navigator.clipboard.readText();
-            if (text.trim()) {
+            if (text.trim() && this.elements.urlInput) {
                 this.elements.urlInput.value = text.trim();
                 // Trigger immediate analysis
                 this.handleSearch(true);
@@ -647,9 +657,12 @@ class UIController {
     }
 
     // Handle GitHub button click
+    // Handle GitHub button click
     handleGitHubClick() {
-        this.elements.urlInput.value = 'https://github.com/sc-hua/LinkJump';
-        this.handleSearch();
+        if (this.elements.urlInput) {
+            this.elements.urlInput.value = 'https://github.com/sc-hua/LinkJump';
+            this.handleSearch();
+        }
     }
 
     // Handle jump to URL
@@ -688,10 +701,13 @@ class UIController {
     }
 
     // Check clipboard API support
+    // Check clipboard API support
     checkClipboardSupport() {
         if (!navigator.clipboard || !navigator.clipboard.readText) {
-            this.elements.pasteBtn.disabled = true;
-            this.elements.pasteBtn.title = 'Clipboard access not supported';
+            if (this.elements.pasteBtn) {
+                this.elements.pasteBtn.disabled = true;
+                this.elements.pasteBtn.title = 'Clipboard access not supported';
+            }
             console.warn('Clipboard API not supported');
         }
     }
