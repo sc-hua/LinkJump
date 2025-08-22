@@ -10,9 +10,13 @@
             "128": "icon.png"
         }
     },
+    "background": {
+        "service_worker": "background.js"
+    },
     "permissions": [
         "tabs",
-        "activeTab"
+        "activeTab",
+        "contextMenus"
     ],
     "content_scripts": [
         {
@@ -20,7 +24,8 @@
                 "*://arxiv.org/*",
                 "*://github.com/*",
                 "*://www.scholar-inbox.com/*",
-                "*://huggingface.co/*"
+                "*://huggingface.co/*",
+                "*://*/*"
             ],
             "js": ["utils.js", "content.js"]
         }

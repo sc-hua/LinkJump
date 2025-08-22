@@ -12,13 +12,19 @@
         "512": "images/icon-512.png"
     },
 
+    "background": {
+        "scripts": ["background.js"],
+        "persistent": false
+    },
+
     "content_scripts": [
         {
             "js": ["utils.js", "content.js"],
             "matches": [
                 "*://arxiv.org/*",
                 "*://github.com/*",
-                "*://www.scholar-inbox.com/*"
+                "*://www.scholar-inbox.com/*",
+                "*://*/*"
             ]
         }
     ],
@@ -34,7 +40,8 @@
     "permissions": [
         "tabs",
         "activeTab",
-        "scripting"
+        "scripting",
+        "contextMenus"
     ],
 
     "web_accessible_resources": [
